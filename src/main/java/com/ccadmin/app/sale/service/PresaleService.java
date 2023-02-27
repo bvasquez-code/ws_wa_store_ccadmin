@@ -4,12 +4,18 @@ import com.ccadmin.app.product.shared.ProductShared;
 import com.ccadmin.app.sale.model.dto.PresaleDetailDto;
 import com.ccadmin.app.sale.model.dto.PresaleRegisterDto;
 import com.ccadmin.app.sale.model.dto.SaleDetailDto;
+import com.ccadmin.app.sale.model.entity.PeriodEntity;
 import com.ccadmin.app.sale.model.entity.PresaleDetWarehouseEntity;
 import com.ccadmin.app.sale.model.entity.PresaleHeadEntity;
 import com.ccadmin.app.sale.model.entity.id.PresaleDetWarehouseID;
+import com.ccadmin.app.sale.repository.PeriodRepository;
 import com.ccadmin.app.sale.repository.PresaleDetRepository;
 import com.ccadmin.app.sale.repository.PresaleDetWarehouseRepository;
 import com.ccadmin.app.sale.repository.PresaleHeadRepository;
+import com.ccadmin.app.shared.model.dto.ResponsePageSearch;
+import com.ccadmin.app.shared.model.dto.ResponseWsDto;
+import com.ccadmin.app.shared.model.dto.SearchDto;
+import com.ccadmin.app.shared.service.SearchService;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.store.model.entity.WarehouseEntity;
 import com.ccadmin.app.store.shared.WarehouseShared;
@@ -33,28 +39,25 @@ public class PresaleService extends SessionService {
     private PresaleDetRepository presaleDetRepository;
     @Autowired
     private PresaleDetWarehouseRepository presaleDetWarehouseRepository;
-
+    @Autowired
+    private PeriodRepository periodRepository;
     @Autowired
     private CurrencyShared currencyShared;
-
     @Autowired
     private WarehouseShared warehouseShared;
-
     @Autowired
     private ProductShared productShared;
-
     @Autowired
     private SaleService saleService;
+    private SearchService searchService;
 
     @Transactional
-    public PresaleDetailDto save(PresaleRegisterDto presaleRegister)
-    {
-        WarehouseEntity warehouseUnit = new WarehouseEntity();
+    public PresaleDetailDto save(PresaleRegisterDto presaleRegister) {
         List<PresaleDetWarehouseEntity> presaleDetWarehouseList = new ArrayList<>();
-        boolean isNew = ( presaleRegister.Headboard.PresaleCod == null ||  presaleRegister.Headboard.PresaleCod.trim().isEmpty() == true);
+        boolean isNewPresale = ( presaleRegister.Headboard.PresaleCod == null ||  presaleRegister.Headboard.PresaleCod.trim().isEmpty() == true);
         boolean IsMultipleWarehouse = warehouseShared.IsMultipleWarehouse(presaleRegister.Headboard.StoreCod);
 
-        if( isNew  )
+        if( isNewPresale  )
         {
             presaleRegister.Headboard.PresaleCod = presaleHeadRepository.getPresaleCod(getStoreCod());
         }
@@ -64,17 +67,14 @@ public class PresaleService extends SessionService {
             this.presaleDetWarehouseRepository.updateStatusAll(presaleRegister.Headboard.PresaleCod,"I");
         }
 
-        if (!IsMultipleWarehouse)
-        {
-            warehouseUnit = this.warehouseShared.findByStore(getStoreCod()).get(0);
-        }
-
         CurrencyEntity currencySystem = this.currencyShared.findCurrencySystem();
+        PeriodEntity period = this.periodRepository.findPeriodActuality();
 
-        presaleRegister.Headboard.addSession(getUserCod(),isNew);
+        presaleRegister.Headboard.addSession(getUserCod(),isNewPresale);
         presaleRegister.Headboard.StoreCod = getStoreCod();
         presaleRegister.Headboard.CurrencyCodSys = currencySystem.CurrencyCod;
         presaleRegister.Headboard.NumExchangevalue = new BigDecimal(1);
+        presaleRegister.Headboard.PeriodId = period.PeriodId;
 
         if(!presaleRegister.Headboard.CurrencyCodSys.equals(presaleRegister.Headboard.CurrencyCod))
         {
@@ -84,40 +84,15 @@ public class PresaleService extends SessionService {
 
         for(var product : presaleRegister.DetailList)
         {
-            product.addSession(getUserCod(),isNew);
+            product.addSession(getUserCod(),isNewPresale);
             product.PresaleCod = presaleRegister.Headboard.PresaleCod;
             product.NumUnitPriceSale = product.NumUnitPrice.subtract( product.NumDiscount );
             product.NumTotalPrice = product.NumUnitPriceSale.multiply(new BigDecimal(product.NumUnit));
+        }
 
-            if( product.DetailWarehouse == null || product.DetailWarehouse.size() > 0)
-            {
-                boolean DetailWarehouseIsNew = isNew;
-                PresaleDetWarehouseEntity detWarehouse = new PresaleDetWarehouseEntity();
-
-                if( !isNew )
-                {
-                    Optional<PresaleDetWarehouseEntity>  detWarehouseOp = this.presaleDetWarehouseRepository.findById(
-                            new PresaleDetWarehouseID(presaleRegister.Headboard.PresaleCod,product.ProductCod,product.Variant,warehouseUnit.WarehouseCod)
-                    );
-                    if (detWarehouseOp.isPresent())
-                    {
-                        detWarehouse = detWarehouseOp.get();
-                    }
-                    else
-                    {
-                        DetailWarehouseIsNew = true;
-                    }
-                }
-
-                detWarehouse.PresaleCod = presaleRegister.Headboard.PresaleCod;
-                detWarehouse.ProductCod = product.ProductCod;
-                detWarehouse.Variant = product.Variant;
-                detWarehouse.WarehouseCod = warehouseUnit.WarehouseCod;
-                detWarehouse.NumUnit = product.NumUnit;
-                detWarehouse.addSession(getUserCod(),DetailWarehouseIsNew);
-                detWarehouse.Status = "A";
-                presaleDetWarehouseList.add(detWarehouse);
-            }
+        if(!IsMultipleWarehouse)
+        {
+            presaleDetWarehouseList = generateDetWarehouseDefault(presaleRegister,isNewPresale);
         }
 
         presaleRegister.Headboard.NumPriceSubTotal = new BigDecimal(
@@ -149,7 +124,6 @@ public class PresaleService extends SessionService {
 
         return findById(presaleRegister.Headboard.PresaleCod);
     }
-
     @Transactional
     public SaleDetailDto confirm(PresaleRegisterDto presaleRegister) {
 
@@ -162,9 +136,7 @@ public class PresaleService extends SessionService {
 
         return this.saleService.save(findById(presaleRegister.Headboard.PresaleCod));
     }
-
-    public PresaleDetailDto findById(String PresaleCod)
-    {
+    public PresaleDetailDto findById(String PresaleCod) {
         PresaleDetailDto  presaleDetail = new PresaleDetailDto();
 
         presaleDetail.Headboard = this.presaleHeadRepository.findById(PresaleCod).get();
@@ -177,5 +149,66 @@ public class PresaleService extends SessionService {
         }
 
         return presaleDetail;
+    }
+    public ResponseWsDto findDataForm() {
+        ResponseWsDto rpt = new ResponseWsDto();
+
+        rpt.AddResponseAdditional("CurrencySystem",this.currencyShared.findCurrencySystem());
+
+        return rpt;
+    }
+    public ResponsePageSearch findAll(String Query, int Page,String StoreCod)
+    {
+        this.searchService = new SearchService(this.presaleHeadRepository);
+        SearchDto search = new SearchDto(Query,Page,StoreCod);
+        return this.searchService.findAllStore(search,10);
+    }
+    private List<PresaleDetWarehouseEntity> generateDetWarehouseDefault(PresaleRegisterDto presaleRegister, boolean IsNewPresale) {
+        List<PresaleDetWarehouseEntity> presaleDetWarehouseList = new ArrayList<>();
+
+        WarehouseEntity warehouseDefault = this.warehouseShared.findByStore(getStoreCod()).get(0);
+
+        for(var product : presaleRegister.DetailList)
+        {
+            PresaleDetWarehouseEntity detWarehouse = new PresaleDetWarehouseEntity();
+            detWarehouse.PresaleCod = presaleRegister.Headboard.PresaleCod;
+            detWarehouse.ProductCod = product.ProductCod;
+            detWarehouse.Variant = product.Variant;
+            detWarehouse.WarehouseCod = warehouseDefault.WarehouseCod;
+            detWarehouse.Status = "A";
+
+            if( IsNewPresale )
+            {
+                detWarehouse.NumUnit = product.NumUnit;
+                detWarehouse.addSession(getUserCod(),true);
+                presaleDetWarehouseList.add(detWarehouse);
+            }
+            else
+            {
+                Optional<PresaleDetWarehouseEntity> detWarehouseOp = this.presaleDetWarehouseRepository.findById(
+                        new PresaleDetWarehouseID(
+                                detWarehouse.PresaleCod,
+                                detWarehouse.ProductCod,
+                                detWarehouse.Variant,
+                                detWarehouse.WarehouseCod
+                        )
+                );
+
+                if( detWarehouseOp.isPresent() )
+                {
+                    detWarehouse = detWarehouseOp.get();
+                    detWarehouse.NumUnit = product.NumUnit;
+                    detWarehouse.addSession(getUserCod(),false);
+                    detWarehouse.Status = "A";
+                }
+                else
+                {
+                    detWarehouse.NumUnit = product.NumUnit;
+                    detWarehouse.addSession(getUserCod(),true);
+                }
+                presaleDetWarehouseList.add(detWarehouse);
+            }
+        }
+        return presaleDetWarehouseList;
     }
 }

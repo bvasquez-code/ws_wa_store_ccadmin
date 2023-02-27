@@ -9,10 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/presale")
@@ -51,6 +48,36 @@ public class PresaleController {
         catch (Exception ex)
         {
             log.error("Error :"+ex.getMessage(), ex);
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findDataForm")
+    public ResponseEntity<ResponseWsDto> findDataForm()
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    this.presaleService.findDataForm()
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findAll")
+    public ResponseEntity<ResponseWsDto> findAll(@RequestParam String Query,int Page,String StoreCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto(this.presaleService.findAll(Query,Page,StoreCod))
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }

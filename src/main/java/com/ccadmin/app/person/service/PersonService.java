@@ -23,4 +23,9 @@ public class PersonService extends SessionService {
     {
         return this.personRepository.findById(PersonCod).get();
     }
+
+    public PersonEntity findByDocumentNum(String DocumentType,String DocumentNum)
+    {
+        return this.personRepository.findByDocumentNum(DocumentType,DocumentNum);
+    }
 }

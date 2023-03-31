@@ -53,11 +53,11 @@ public class PresaleController {
     }
 
     @GetMapping("findDataForm")
-    public ResponseEntity<ResponseWsDto> findDataForm()
+    public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam String PresaleCod)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    this.presaleService.findDataForm()
+                    this.presaleService.findDataForm(PresaleCod)
                     ,HttpStatus.OK
             );
         }

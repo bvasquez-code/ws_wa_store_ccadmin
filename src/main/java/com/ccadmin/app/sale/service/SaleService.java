@@ -1,17 +1,21 @@
 package com.ccadmin.app.sale.service;
 
+import com.ccadmin.app.client.shared.ClientShared;
 import com.ccadmin.app.product.model.entity.KardexEntity;
 import com.ccadmin.app.product.shared.KardexShared;
+import com.ccadmin.app.product.shared.ProductShared;
 import com.ccadmin.app.sale.model.dto.PresaleDetailDto;
 import com.ccadmin.app.sale.model.dto.SaleDetailDto;
 import com.ccadmin.app.sale.model.dto.SalePaymentDto;
 import com.ccadmin.app.sale.model.dto.SaleRegisterDto;
 import com.ccadmin.app.sale.model.entity.*;
 import com.ccadmin.app.sale.repository.*;
+import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.system.model.entity.CurrencyEntity;
 import com.ccadmin.app.system.shared.CounterfoilShared;
 import com.ccadmin.app.system.shared.CurrencyShared;
+import com.ccadmin.app.system.shared.PaymentMethodShared;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,11 +49,17 @@ public class SaleService extends SessionService {
     private KardexShared kardexShared;
     @Autowired
     private CounterfoilShared counterfoilShared;
+    @Autowired
+    private ProductShared productShared;
+    @Autowired
+    private PaymentMethodShared paymentMethodShared;
+
+    @Autowired
+    private ClientShared clientShared;
 
     @Transactional
     public SaleDetailDto save(PresaleDetailDto presaleDetail)
     {
-        SaleDetailDto saleDetail = new SaleDetailDto();
         SaleRegisterDto saleRegister = new SaleRegisterDto();
 
         PeriodEntity period = this.periodRepository.findPeriodActuality();
@@ -58,8 +68,8 @@ public class SaleService extends SessionService {
         SaleHeadEntity saleHead = new SaleHeadEntity(presaleDetail.Headboard);
         saleHead.SaleCod = this.saleHeadRepository.getSaleCod(getStoreCod());
         saleHead.PeriodId = period.PeriodId;
-        saleHead.NumTotalTax = calculateBaseTax(taxList,saleHead.NumTotalPrice);
-        saleHead.NumTotalPriceNoTax = new BigDecimal( saleHead.NumTotalPrice.doubleValue() -  saleHead.NumTotalTax.doubleValue());
+        saleHead.NumTotalPriceNoTax = calculateBaseTax(taxList,saleHead.NumTotalPrice);
+        saleHead.NumTotalTax = new BigDecimal( saleHead.NumTotalPrice.doubleValue() -  saleHead.NumTotalPriceNoTax.doubleValue());
         saleHead.addSession(getUserCod(),true);
 
         List<SaleDetEntity> detailSale = new ArrayList<>();
@@ -98,7 +108,7 @@ public class SaleService extends SessionService {
         this.saleDetWarehouseRepository.saveAll(detailSaleWarehouse);
         this.saleAppliedTaxRepository.saveAll(SaleAppliedTaxList);
 
-        return saleDetail;
+        return this.findById(saleHead.SaleCod);
     }
 
     private BigDecimal calculateBaseTax(List<TaxEntity> taxList,BigDecimal total)
@@ -186,13 +196,44 @@ public class SaleService extends SessionService {
             salePayment.NumAmountReturned = new BigDecimal(
                     TotalPayment.doubleValue() + salePayment.NumAmountPaid.doubleValue() - saleHead.NumTotalPrice.doubleValue()
             );
-
             confirm(payment.SaleCod,payment.DocumentType,"");
-
         }
         salePayment.addSession(getUserCod(),true);
         salePaymentRepository.save(salePayment);
 
         return salePayment;
+    }
+
+    public ResponseWsDto findDataForm(String SaleCod) {
+        ResponseWsDto rpt = new ResponseWsDto();
+
+        if(SaleCod != null && !SaleCod.trim().equals(""))
+        {
+            rpt.AddResponseAdditional("SaleDetail",findById(SaleCod));
+        }
+        rpt.AddResponseAdditional("PaymentMethodList",this.paymentMethodShared.findAllActive());
+        rpt.AddResponseAdditional("CurrencyList",this.currencyShared.findAllActive());
+
+        return rpt;
+    }
+
+    public SaleDetailDto findById(String SaleCod)
+    {
+        SaleDetailDto saleDetail = new SaleDetailDto();
+
+        saleDetail.Headboard = this.saleHeadRepository.findById(SaleCod).get();
+        saleDetail.DetailList = this.saleDetRepository.findBySaleCod(SaleCod);
+
+        if(saleDetail.Headboard.ClientCod != null && !saleDetail.Headboard.CurrencyCod.isEmpty())
+        {
+            saleDetail.Headboard.Client = this.clientShared.findById(saleDetail.Headboard.ClientCod);
+        }
+
+        for(var DetailSale : saleDetail.DetailList)
+        {
+            DetailSale.Product = this.productShared.findById(DetailSale.ProductCod);
+        }
+
+        return saleDetail;
     }
 }

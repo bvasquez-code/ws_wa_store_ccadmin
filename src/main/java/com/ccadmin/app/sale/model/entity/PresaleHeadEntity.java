@@ -1,9 +1,11 @@
 package com.ccadmin.app.sale.model.entity;
 
+import com.ccadmin.app.client.model.entity.ClientEntity;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -28,5 +30,8 @@ public class PresaleHeadEntity extends AuditTableEntity implements Serializable 
     public String CurrencyCodSys;
     public BigDecimal NumExchangevalue;
     public String IsPaid;
+
+    @Transient
+    public ClientEntity Client;
 
 }

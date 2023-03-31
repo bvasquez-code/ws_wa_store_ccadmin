@@ -20,4 +20,9 @@ public class PersonShared {
     {
         return this.personService.findById(PersonCod);
     }
+
+    public PersonEntity findByDocumentNum(String DocumentType,String DocumentNum)
+    {
+        return this.personService.findByDocumentNum(DocumentType,DocumentNum);
+    }
 }

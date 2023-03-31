@@ -5,6 +5,8 @@ import com.ccadmin.app.system.repository.CurrencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CurrencyService {
 
@@ -20,4 +22,9 @@ public class CurrencyService {
     {
         return this.currencyRepository.findCurrencySystem();
     }
+    public List<CurrencyEntity> findAllActive()
+    {
+        return this.currencyRepository.findAllActive();
+    }
+
 }

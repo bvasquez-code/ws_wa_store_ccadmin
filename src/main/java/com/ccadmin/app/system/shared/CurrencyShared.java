@@ -5,6 +5,8 @@ import com.ccadmin.app.system.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CurrencyShared {
 
@@ -19,5 +21,9 @@ public class CurrencyShared {
     public CurrencyEntity findById(String CurrencyCod)
     {
         return this.currencyService.findById(CurrencyCod);
+    }
+    public List<CurrencyEntity> findAllActive()
+    {
+        return this.currencyService.findAllActive();
     }
 }

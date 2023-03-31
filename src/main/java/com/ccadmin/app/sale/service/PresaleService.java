@@ -1,5 +1,6 @@
 package com.ccadmin.app.sale.service;
 
+import com.ccadmin.app.client.shared.ClientShared;
 import com.ccadmin.app.product.shared.ProductShared;
 import com.ccadmin.app.sale.model.dto.PresaleDetailDto;
 import com.ccadmin.app.sale.model.dto.PresaleRegisterDto;
@@ -49,6 +50,8 @@ public class PresaleService extends SessionService {
     private ProductShared productShared;
     @Autowired
     private SaleService saleService;
+    @Autowired
+    private ClientShared clientShared;
     private SearchService searchService;
 
     @Transactional
@@ -75,6 +78,7 @@ public class PresaleService extends SessionService {
         presaleRegister.Headboard.CurrencyCodSys = currencySystem.CurrencyCod;
         presaleRegister.Headboard.NumExchangevalue = new BigDecimal(1);
         presaleRegister.Headboard.PeriodId = period.PeriodId;
+        presaleRegister.Headboard.SaleStatus = "P";
 
         if(!presaleRegister.Headboard.CurrencyCodSys.equals(presaleRegister.Headboard.CurrencyCod))
         {
@@ -142,18 +146,24 @@ public class PresaleService extends SessionService {
         presaleDetail.Headboard = this.presaleHeadRepository.findById(PresaleCod).get();
         presaleDetail.DetailList = this.presaleDetRepository.findByPresaleCod(PresaleCod);
 
+        if( presaleDetail.Headboard.ClientCod != null && !presaleDetail.Headboard.ClientCod.isEmpty() )
+        {
+            presaleDetail.Headboard.Client = this.clientShared.findById(presaleDetail.Headboard.ClientCod);
+        }
+
         for(var item : presaleDetail.DetailList)
         {
             item.DetailWarehouse = this.presaleDetWarehouseRepository.findByProductCod(item.PresaleCod,item.ProductCod);
-            item.product = this.productShared.findById(item.ProductCod);
+            item.Product = this.productShared.findById(item.ProductCod);
         }
 
         return presaleDetail;
     }
-    public ResponseWsDto findDataForm() {
+    public ResponseWsDto findDataForm(String PresaleCod) {
         ResponseWsDto rpt = new ResponseWsDto();
 
         rpt.AddResponseAdditional("CurrencySystem",this.currencyShared.findCurrencySystem());
+        if(PresaleCod!=null && !PresaleCod.isEmpty()) rpt.AddResponseAdditional("PresaleDetail",this.findById(PresaleCod));
 
         return rpt;
     }
@@ -161,7 +171,17 @@ public class PresaleService extends SessionService {
     {
         this.searchService = new SearchService(this.presaleHeadRepository);
         SearchDto search = new SearchDto(Query,Page,StoreCod);
-        return this.searchService.findAllStore(search,10);
+        ResponsePageSearch responsePage = this.searchService.findAllStore(search,10);
+
+        if( responsePage.resultSearch != null )
+        {
+            for (PresaleHeadEntity Presale : (List<PresaleHeadEntity>)responsePage.resultSearch)
+            {
+                if(Presale.ClientCod != null && !Presale.ClientCod.isEmpty()) Presale.Client = this.clientShared.findById(Presale.ClientCod);
+            }
+        }
+
+        return responsePage;
     }
     private List<PresaleDetWarehouseEntity> generateDetWarehouseDefault(PresaleRegisterDto presaleRegister, boolean IsNewPresale) {
         List<PresaleDetWarehouseEntity> presaleDetWarehouseList = new ArrayList<>();

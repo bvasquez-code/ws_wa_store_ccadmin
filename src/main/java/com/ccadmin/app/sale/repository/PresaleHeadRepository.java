@@ -21,6 +21,7 @@ public interface PresaleHeadRepository extends JpaRepository<PresaleHeadEntity,S
             where            
             (ph.PresaleCod = :id or ph.PresaleCod like %:query%)
             and ph.StoreCod = :storeCod
+            and ph.SaleStatus = 'P'
             """,nativeQuery = true)
     public int countByQueryTextStore(
               @Param("id") String id
@@ -34,6 +35,7 @@ public interface PresaleHeadRepository extends JpaRepository<PresaleHeadEntity,S
             where        
             (ph.PresaleCod = :id or ph.PresaleCod like %:query%)
             and ph.StoreCod = :storeCod
+            and ph.SaleStatus = 'P'
             order by ph.PresaleCod desc
             limit :init,:limit
             """,nativeQuery = true)

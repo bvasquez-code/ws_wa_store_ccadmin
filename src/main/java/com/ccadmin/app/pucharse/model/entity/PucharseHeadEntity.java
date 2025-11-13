@@ -15,6 +15,7 @@ public class PucharseHeadEntity extends AuditTableEntity implements Serializable
     @Id
     public String PucharseCod;
     public String StoreCod;
+    public String PucharseReqCod;
     public String ExternalCod;
     public String DealerCod;
     public String Commenter;

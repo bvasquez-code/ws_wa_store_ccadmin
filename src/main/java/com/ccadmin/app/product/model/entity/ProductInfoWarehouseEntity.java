@@ -23,4 +23,9 @@ public class ProductInfoWarehouseEntity extends AuditTableEntity implements Seri
     public String WarehouseCod;
     public int NumDigitalStock;
     public int NumPhysicalStock;
+
+    public void addStock(int NumNewStock){
+        this.NumDigitalStock = this.NumDigitalStock + NumNewStock;
+        this.NumPhysicalStock = this.NumPhysicalStock + NumNewStock;
+    }
 }

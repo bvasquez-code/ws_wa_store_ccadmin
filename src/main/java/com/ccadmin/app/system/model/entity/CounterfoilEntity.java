@@ -17,5 +17,6 @@ public class CounterfoilEntity extends AuditTableEntity implements Serializable 
     public String Series;
     public int Correlative;
     public String IsAutomatic;
+    public String GroupDocument;
 
 }

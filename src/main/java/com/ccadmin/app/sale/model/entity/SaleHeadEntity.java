@@ -1,6 +1,7 @@
 package com.ccadmin.app.sale.model.entity;
 
 import com.ccadmin.app.client.model.entity.ClientEntity;
+import com.ccadmin.app.sale.exception.SaleBuildException;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -76,5 +77,59 @@ public class SaleHeadEntity extends AuditTableEntity implements Serializable {
         CurrencyCodSys = currencyCodSys;
         NumExchangevalue = numExchangevalue;
         IsPaid = isPaid;
+    }
+
+    public SaleHeadEntity tax(BigDecimal NumTotalPriceNoTax,BigDecimal NumTotalTax){
+        this.NumTotalPriceNoTax = NumTotalPriceNoTax;
+        this.NumTotalTax = NumTotalTax;
+        return this;
+    }
+
+
+
+    public SaleHeadEntity build(PresaleHeadEntity presaleHead,PeriodEntity period,String SaleCod,String SaleStatus){
+        this.SaleCod = SaleCod;
+        this.PresaleCod = presaleHead.PresaleCod;
+        this.StoreCod = presaleHead.StoreCod;
+        this.ClientCod = presaleHead.ClientCod;
+        this.NumPriceSubTotal = presaleHead.NumPriceSubTotal;
+        this.NumDiscount = presaleHead.NumDiscount;
+        this.NumTotalPrice = presaleHead.NumTotalPrice;
+        this.NumTotalPriceNoTax = presaleHead.NumTotalPriceNoTax;
+        this.NumTotalTax = presaleHead.NumTotalTax;
+        this.Commenter = presaleHead.Commenter;
+        this.SaleStatus = SaleStatus;
+        this.CurrencyCod = presaleHead.CurrencyCod;
+        this.CurrencyCodSys = presaleHead.CurrencyCodSys;
+        this.NumExchangevalue = presaleHead.NumExchangevalue;
+        this.IsPaid = presaleHead.IsPaid;
+        this.PeriodId = period.PeriodId;
+        return this;
+    }
+
+    public SaleHeadEntity validate() throws SaleBuildException {
+        if(this.SaleCod==null || this.SaleCod.isEmpty()){
+            throw new SaleBuildException("Código de venta esta vacío");
+        }
+        if(this.NumPriceSubTotal.compareTo(BigDecimal.ZERO) < 0){
+            throw new SaleBuildException("Sub total no puede ser negativo");
+        }
+        if(this.NumDiscount.compareTo(BigDecimal.ZERO) < 0){
+            throw new SaleBuildException("Descuento no puede ser negativo");
+        }
+        if(this.NumTotalPrice.compareTo(BigDecimal.ZERO) < 0){
+            throw new SaleBuildException("Precio total no puede ser negativo");
+        }
+        return this;
+    }
+
+    @Override
+    public SaleHeadEntity session(String userCod) {
+        this.addSession(userCod);
+        return this;
+    }
+
+    public boolean existClient(){
+        return (this.ClientCod != null && !this.CurrencyCod.isEmpty());
     }
 }

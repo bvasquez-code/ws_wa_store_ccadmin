@@ -11,19 +11,21 @@ public class SearchDto {
 
     public SearchDto()
     {
-
+        this.Limit = 10;
     }
 
     public SearchDto(String Query,int Page)
     {
         this.Query = Query;
         this.Page = Page;
+        this.Limit = 10;
     }
     public SearchDto(String Query,int Page,String StoreCod)
     {
         this.Query = Query;
         this.Page = Page;
         this.StoreCod =  StoreCod;
+        this.Limit = 10;
     }
 
     public void setLimit(int Limit)

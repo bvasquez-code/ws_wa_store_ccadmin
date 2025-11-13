@@ -1,11 +1,9 @@
 package com.ccadmin.app.pucharse.model.entity;
 
+import com.ccadmin.app.product.model.entity.ProductEntity;
 import com.ccadmin.app.pucharse.model.entity.id.PucharseRequestDetId;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,6 +22,9 @@ public class PucharseRequestDetEntity extends AuditTableEntity implements Serial
     public int NumUnit;
     public BigDecimal NumUnitPrice;
     public BigDecimal NumTotalPrice;
+
+    @Transient
+    public ProductEntity Product;
 
     public PucharseRequestDetEntity()
     {

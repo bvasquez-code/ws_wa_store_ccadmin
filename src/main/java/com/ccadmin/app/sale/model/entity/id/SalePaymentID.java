@@ -7,5 +7,5 @@ public class SalePaymentID implements Serializable {
 
     public int PaymentNumber;
     public String SaleCod;
-    public String PaymentMethodCod;
+    public long TrxPaymentId;
 }

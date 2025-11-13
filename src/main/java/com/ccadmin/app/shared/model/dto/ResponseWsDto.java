@@ -1,8 +1,11 @@
 package com.ccadmin.app.shared.model.dto;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ResponseWsDto {
     public String Status;
     public String Message;
@@ -23,6 +26,7 @@ public class ResponseWsDto {
 
     public ResponseWsDto(Exception ex)
     {
+        log.error(ex.getMessage(),ex);
         this.Data = ex;
         this.Error();
         this.Message = ex.getMessage();
@@ -56,5 +60,19 @@ public class ResponseWsDto {
     public void AddResponseAdditional(String name, Object data)
     {
         this.DataAdditional.add( new ResponseAdditionalDto(name,data) );
+    }
+
+    public ResponseWsDto okResponse(Object Data){
+        this.Ok();
+        this.Data = Data;
+        return this;
+    }
+
+    public ResponseWsDto errorResponse(Exception ex){
+        log.error(ex.getMessage(),ex);
+        this.Data = ex;
+        this.Error();
+        this.Message = ex.getMessage();
+        return this;
     }
 }

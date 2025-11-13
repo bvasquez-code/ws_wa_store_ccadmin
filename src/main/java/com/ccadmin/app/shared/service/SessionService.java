@@ -13,19 +13,17 @@ public abstract class SessionService {
 
     public String getUserCod()
     {
-        if(sessionDto.UserCod ==null || sessionDto.UserCod.isEmpty())
-        {
+        try{
             sessionDto.UserCod = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            return sessionDto.UserCod;
+        }catch (Exception ex){
+            return "SISTEMA";
         }
-        return sessionDto.UserCod;
     }
 
     public String getStoreCod()
     {
-        if(sessionDto.StoreCod ==null || sessionDto.StoreCod.isEmpty())
-        {
-            sessionDto.StoreCod = this.userStoreShared.getMainStore(getUserCod());
-        }
+        sessionDto.StoreCod = this.userStoreShared.getMainStore(getUserCod());
         return sessionDto.StoreCod;
     }
 

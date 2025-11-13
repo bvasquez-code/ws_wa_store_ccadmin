@@ -49,7 +49,7 @@ public class JWTAuthenticationFilterService extends UsernamePasswordAuthenticati
 
         sessionDB(userDetailsImp,token);
 
-        response.addHeader("Authorization","Bearer "+token);
+        response.addHeader("Authorization", STR."Bearer \{token}");
         response.getWriter().flush();
         super.successfulAuthentication(request, response, chain, authResult);
     }

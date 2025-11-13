@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService extends SessionService {
@@ -90,5 +91,18 @@ public class ClientService extends SessionService {
         ClientEntity Client = this.clientRepository.findById(ClientCod).get();
         Client.Person = this.personShared.findById(Client.PersonCod);
         return Client;
+    }
+
+    public List<ClientEntity> findAllById(List<String> ClientCodList){
+        List<ClientEntity> clientList = this.clientRepository.findAllById(ClientCodList);
+        List<PersonEntity> personList = this.personShared.findAllById( clientList.stream().map( Client -> Client.PersonCod ).collect(Collectors.toList()) );
+
+        for(var Client : clientList){
+            Client.Person = personList.stream()
+                            .filter( Person -> Person.PersonCod.equals(Client.PersonCod) )
+                            .findFirst()
+                            .orElse(null);
+        }
+        return clientList;
     }
 }

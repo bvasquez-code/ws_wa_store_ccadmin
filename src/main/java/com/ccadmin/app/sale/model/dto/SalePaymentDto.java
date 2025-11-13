@@ -1,15 +1,15 @@
 package com.ccadmin.app.sale.model.dto;
 
-
-import java.math.BigDecimal;
+import com.ccadmin.app.payment.model.entity.TrxPaymentEntity;
+import com.ccadmin.app.sale.model.entity.SalePaymentEntity;
 
 public class SalePaymentDto {
 
-    public String SaleCod;
-    public String PaymentMethodCod;
-    public String CurrencyCod;
-    public BigDecimal NumAmountPaid;
-    public String DocumentType;
-    public String CounterfoilCod;
+    public SalePaymentEntity SalePayment;
+    public TrxPaymentEntity TrxPayment;
 
+    public SalePaymentDto(SalePaymentEntity salePayment, TrxPaymentEntity trxPayment) {
+        SalePayment = salePayment;
+        TrxPayment = trxPayment;
+    }
 }

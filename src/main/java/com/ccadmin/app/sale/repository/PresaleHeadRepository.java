@@ -11,7 +11,7 @@ import java.util.List;
 public interface PresaleHeadRepository extends JpaRepository<PresaleHeadEntity,String>, CcAdminRepository<PresaleHeadEntity,String> {
 
     @Query(value = """
-            SELECT get_trx_presale_head(:storeCod) as PresaleCod;
+            CALL db_store_01.get_cod_trx(:storeCod, 'presale_head')
             """,nativeQuery = true)
     public String getPresaleCod(@Param("storeCod") String storeCod);
 

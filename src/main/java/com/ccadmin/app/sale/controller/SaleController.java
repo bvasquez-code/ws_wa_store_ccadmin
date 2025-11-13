@@ -1,8 +1,8 @@
 package com.ccadmin.app.sale.controller;
 
-import com.ccadmin.app.sale.model.dto.SalePaymentDto;
-import com.ccadmin.app.sale.model.entity.SalePaymentEntity;
-import com.ccadmin.app.sale.service.SaleService;
+import com.ccadmin.app.sale.model.dto.SalePaymentRegisterDto;
+import com.ccadmin.app.sale.service.SalePaymentCreateService;
+import com.ccadmin.app.sale.service.SaleSearchService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,21 +17,22 @@ public class SaleController {
 
     public static Logger log = LogManager.getLogger(SaleController.class);
     @Autowired
-    private SaleService saleService;
-
+    private SalePaymentCreateService salePaymentCreateService;
+    @Autowired
+    private SaleSearchService saleSearchService;
 
     @PostMapping("addPayment")
-    public ResponseEntity<ResponseWsDto> addPayment(@RequestBody SalePaymentDto salePayment)
+    public ResponseEntity<ResponseWsDto> addPayment(@RequestBody SalePaymentRegisterDto salePayment)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.saleService.addPayment(salePayment))
+                    new ResponseWsDto(this.salePaymentCreateService.save(salePayment))
                     , HttpStatus.OK
             );
         }
         catch (Exception ex)
         {
-            log.error("Error :"+ex.getMessage(), ex);
+            log.error(STR."Error :\{ex.getMessage()}", ex);
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
@@ -41,7 +42,7 @@ public class SaleController {
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    this.saleService.findDataForm(SaleCod)
+                    this.saleSearchService.findDataForm(SaleCod)
                     ,HttpStatus.OK
             );
         }
@@ -50,5 +51,66 @@ public class SaleController {
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("findAll")
+    public ResponseEntity<ResponseWsDto> findAll(@RequestParam String Query,int Page,String StoreCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto(this.saleSearchService.findAll(Query,Page,StoreCod))
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findByDocumentCod")
+    public ResponseEntity<ResponseWsDto> findByDocumentCod(@RequestParam String DocumentCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto().okResponse(this.saleSearchService.findByDocumentCod(DocumentCod))
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findById")
+    public ResponseEntity<ResponseWsDto> findById(@RequestParam String SaleCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto().okResponse(this.saleSearchService.findById(SaleCod))
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findDataPrint")
+    public ResponseEntity<ResponseWsDto> findDataPrint(@RequestParam String SaleCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    this.saleSearchService.findDataPrint(SaleCod)
+                    ,HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }

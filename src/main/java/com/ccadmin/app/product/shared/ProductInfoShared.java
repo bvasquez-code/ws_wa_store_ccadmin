@@ -23,4 +23,13 @@ public class ProductInfoShared {
     {
         return this.productInfoService.saveAll(list);
     }
+
+    public ProductInfoEntity save(ProductInfoEntity productInfo)
+    {
+        return this.productInfoService.save(productInfo);
+    }
+    public List<ProductInfoEntity> findAll(){
+        return this.productInfoService.findAll();
+    }
+
 }

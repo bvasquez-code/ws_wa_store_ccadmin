@@ -6,5 +6,13 @@ import java.io.Serializable;
 public class BusinessConfigEntityID implements Serializable {
 
     public String GroupCod;
-    public int ConfigCorr;
+    public Integer ConfigCorr;
+
+    public BusinessConfigEntityID(){
+
+    }
+    public BusinessConfigEntityID(String GroupCod,Integer ConfigCorr){
+        this.GroupCod = GroupCod;
+        this.ConfigCorr = ConfigCorr;
+    }
 }

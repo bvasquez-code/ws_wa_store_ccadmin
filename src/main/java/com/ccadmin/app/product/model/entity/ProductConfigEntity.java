@@ -22,4 +22,14 @@ public class ProductConfigEntity extends AuditTableEntity implements Serializabl
     public BigDecimal NumDiscountMax;
     public String Version;
 
+    public ProductConfigEntity(){
+
+    }
+
+    @Override
+    public ProductConfigEntity session(String userCod) {
+        this.addSession(userCod);
+        return this;
+    }
+
 }

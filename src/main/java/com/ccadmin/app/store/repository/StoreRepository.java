@@ -11,4 +11,9 @@ public interface StoreRepository extends JpaRepository<StoreEntity,String> {
             select count(1)  from warehouse w where w.StoreCod = :StoreCod and Status = 'A'
             """,nativeQuery = true)
     public int countNumberWarehouse(@Param("StoreCod") String StoreCod);
+
+    @Query(value = """
+            select get_ubigeo_full_name(:UbigeoCod)
+            """, nativeQuery = true)
+    public String findUbigeo(@Param("UbigeoCod") String UbigeoCod);
 }

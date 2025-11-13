@@ -27,4 +27,14 @@ public interface ProfileMenuRepository extends JpaRepository<ProfileMenuEntity, 
             where ProfileCod = :ProfileCod and Status = 'A'                
             """, nativeQuery = true)
     public List<ProfileMenuEntity> findAllByProfile(@Param("ProfileCod") String ProfileCod);
+
+
+    @Query( value = """
+            select pm.* from user_profile up
+            inner join profile_menu pm on pm.ProfileCod = up.ProfileCod
+            where up.UserCod  = :UserCod
+            and up.Status = 'A'
+            and pm.Status = 'A'     
+            """, nativeQuery = true)
+    public List<ProfileMenuEntity> findAllByUser(@Param("UserCod") String UserCod);
 }

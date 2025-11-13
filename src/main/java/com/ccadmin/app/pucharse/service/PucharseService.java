@@ -8,13 +8,22 @@ import com.ccadmin.app.product.model.entity.id.ProductInfoWarehouseId;
 import com.ccadmin.app.product.shared.KardexShared;
 import com.ccadmin.app.product.shared.ProductInfoShared;
 import com.ccadmin.app.product.shared.ProductInfoWarehouseShared;
+import com.ccadmin.app.product.shared.ProductShared;
 import com.ccadmin.app.pucharse.exception.PucharseException;
+import com.ccadmin.app.pucharse.model.dto.PucharseDetConfirmDto;
 import com.ccadmin.app.pucharse.model.dto.PucharseDetailsDto;
 import com.ccadmin.app.pucharse.model.dto.PucharseRegisterDto;
 import com.ccadmin.app.pucharse.model.entity.*;
 import com.ccadmin.app.pucharse.repository.*;
+import com.ccadmin.app.shared.model.dto.ResponsePageSearch;
+import com.ccadmin.app.shared.model.dto.ResponseWsDto;
+import com.ccadmin.app.shared.model.dto.SearchDto;
+import com.ccadmin.app.shared.model.myconst.StatusConst;
+import com.ccadmin.app.shared.service.SearchService;
 import com.ccadmin.app.shared.service.SessionService;
+import com.ccadmin.app.store.model.entity.StoreEntity;
 import com.ccadmin.app.store.model.entity.WarehouseEntity;
+import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.store.shared.WarehouseShared;
 import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +56,11 @@ public class PucharseService extends SessionService {
     private ProductInfoShared productInfoShared;
     @Autowired
     private WarehouseShared warehouseShared;
+    @Autowired
+    private ProductShared productShared;
+    @Autowired
+    private StoreShared storeShared;
+    private SearchService searchService;
 
     @Transactional
     public PucharseDetailsDto save(PucharseRegisterDto pucharseRegister) throws Exception {
@@ -54,15 +68,16 @@ public class PucharseService extends SessionService {
         PucharseRequestHeadEntity headRequest = pucharseRequestHeadRepository.findById(pucharseRegister.PucharseReqCod).get();
         List<PucharseRequestDetEntity> detailRequestList = pucharseRequestDetRepository.findAllActive(pucharseRegister.PucharseReqCod);
 
-        if( headRequest.PurchaseStatus.equals("A") )
+        if( !headRequest.PurchaseStatus.equals(StatusConst.PENDING) )
         {
-            throw new PucharseException("¡Request is approved!");
+            throw new PucharseException("¡Request is Confirmed!");
         }
 
         PucharseHeadEntity head = new PucharseHeadEntity(headRequest);
         head.addSession(getUserCod(),true);
         head.PucharseCod = this.pucharseHeadRepository.getPucharseCod(getStoreCod());
-        head.PurchaseStatus = "P";
+        head.PurchaseStatus = StatusConst.PENDING;
+        head.PucharseReqCod = pucharseRegister.PucharseReqCod;
         List<PucharseDetEntity> detailList = new ArrayList<>();
 
         for (var item : detailRequestList)
@@ -76,7 +91,7 @@ public class PucharseService extends SessionService {
         this.pucharseHeadRepository.save(head);
         this.pucharseDetRepository.saveAll(detailList);
 
-        headRequest.PurchaseStatus = "A";
+        headRequest.PurchaseStatus = StatusConst.FINALIZED;
         this.pucharseRequestHeadRepository.save(headRequest);
 
         return findById(head.PucharseCod);
@@ -110,7 +125,7 @@ public class PucharseService extends SessionService {
             warehouseUnit = this.warehouseShared.findByStore(Headboard.StoreCod).get(0);
         }
 
-        if( Headboard.PurchaseStatus.equals("E") )
+        if( !Headboard.PurchaseStatus.equals(StatusConst.PENDING) )
         {
             throw new PucharseException("purchase has already been delivered");
         }
@@ -148,17 +163,7 @@ public class PucharseService extends SessionService {
 
                 if( kardexLast != null ) NumStockBefore = kardexLast.NumStockAfter;
 
-                KardexEntity kardex = new KardexEntity();
-                kardex.OperationCod = Headboard.PucharseCod;
-                kardex.SourceTable = "pucharse_head";
-                kardex.TypeOperation = "S";
-                kardex.ProductCod = item.ProductCod;
-                kardex.Variant = item.Variant;
-                kardex.StoreCod = Headboard.StoreCod;
-                kardex.WarehouseCod = itemWarehouse.WarehouseCod;
-                kardex.NumStockBefore = NumStockBefore;
-                kardex.NumStockMoved = itemWarehouse.NumUnit;
-                kardex.NumStockAfter = NumStockBefore + itemWarehouse.NumUnit;
+                KardexEntity kardex = new KardexEntity(kardexLast,itemWarehouse,Headboard.StoreCod);
                 kardex.addSession(getUserCod(),true);
                 kardexList.add(kardex);
 
@@ -182,7 +187,7 @@ public class PucharseService extends SessionService {
             productInfoList.add(productInfo);
         }
 
-        Headboard.PurchaseStatus = "E";
+        Headboard.PurchaseStatus = StatusConst.FINALIZED;
         Headboard.addSession(getUserCod(),false);
         this.pucharseHeadRepository.save(Headboard);
         this.pucharseDetDeliveryRepository.saveAll(DeliveryList);
@@ -193,4 +198,44 @@ public class PucharseService extends SessionService {
         return findById(Headboard.PucharseCod);
     }
 
+    public ResponseWsDto findDataForm(String PucharseCod)
+    {
+        ResponseWsDto rpt = new ResponseWsDto();
+
+        PucharseDetailsDto pucharseDetails = findById(PucharseCod);
+
+        for(var item : pucharseDetails.DetailList){
+            item.Product = this.productShared.findById(item.ProductCod);
+        }
+
+        List<WarehouseEntity> warehouseList = this.warehouseShared.findByStore(getStoreCod());
+        StoreEntity store = this.storeShared.findById(getStoreCod());
+
+        rpt.AddResponseAdditional("PucharseDetails",pucharseDetails);
+        rpt.AddResponseAdditional("WarehouseList",warehouseList);
+        rpt.AddResponseAdditional("Store",store);
+
+        return rpt;
+    }
+
+    @Transactional
+    public PucharseHeadEntity endReception(PucharseHeadEntity pucharseHead) throws PucharseException {
+
+        PucharseHeadEntity pucharseHeadDB = this.pucharseHeadRepository.findById(pucharseHead.PucharseCod).get();
+
+        if( !pucharseHeadDB.PurchaseStatus.equals(StatusConst.PENDING) )
+        {
+            throw new PucharseException("purchase has already been delivered");
+        }
+        pucharseHeadDB.PurchaseStatus = StatusConst.FINALIZED;
+        pucharseHeadDB.addSession(getUserCod(),false);
+        return this.pucharseHeadRepository.save(pucharseHeadDB);
+    }
+
+    public ResponsePageSearch findAll(String Query, int Page, String StoreCod)
+    {
+        SearchDto search = new SearchDto(Query,Page,StoreCod);
+        this.searchService = new SearchService(this.pucharseHeadRepository);
+        return this.searchService.findAllStore(search,10);
+    }
 }

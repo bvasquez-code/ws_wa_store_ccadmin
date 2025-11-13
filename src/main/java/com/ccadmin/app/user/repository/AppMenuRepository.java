@@ -44,5 +44,17 @@ public interface AppMenuRepository extends JpaRepository<AppMenuEntity,String>, 
             """, nativeQuery = true)
     public List<AppMenuEntity> findMenuChild(@Param("MenuDadCod") String MenuDadCod);
 
+    @Query( value = """
+            select am.* from app_menu am
+            where am.MenuCod in (
+            	select pm.MenuCod from user_profile up
+            	inner join profile_menu pm on pm.ProfileCod = up.ProfileCod
+            	where up.UserCod  = :UserCod
+            	and up.Status = 'A'
+            	and pm.Status = 'A'
+            )
+            """, nativeQuery = true)
+    public List<AppMenuEntity> findByUser(@Param("UserCod") String UserCod);
+
 
 }

@@ -23,4 +23,9 @@ public class ProductInfoEntity extends AuditTableEntity implements Serializable 
     public int NumDigitalStock;
     public int NumPhysicalStock;
 
+    public void addStock(int NumNewStock){
+        this.NumDigitalStock = this.NumDigitalStock + NumNewStock;
+        this.NumPhysicalStock = this.NumPhysicalStock + NumNewStock;
+    }
+
 }

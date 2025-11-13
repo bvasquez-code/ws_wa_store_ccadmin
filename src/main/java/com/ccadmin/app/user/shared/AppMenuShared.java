@@ -18,4 +18,8 @@ public class AppMenuShared {
     {
         return this.appMenuService.findMenuStructure();
     }
+
+    public List<AppMenuEntity> findByUser(String UserCod){
+        return this.appMenuService.findByUser(UserCod);
+    }
 }

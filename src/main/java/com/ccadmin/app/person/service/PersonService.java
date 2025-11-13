@@ -6,6 +6,8 @@ import com.ccadmin.app.shared.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PersonService extends SessionService {
 
@@ -27,5 +29,9 @@ public class PersonService extends SessionService {
     public PersonEntity findByDocumentNum(String DocumentType,String DocumentNum)
     {
         return this.personRepository.findByDocumentNum(DocumentType,DocumentNum);
+    }
+
+    public List<PersonEntity> findAllById(List<String> PersonCodList){
+        return this.personRepository.findAllById(PersonCodList);
     }
 }

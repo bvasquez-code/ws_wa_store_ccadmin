@@ -1,8 +1,8 @@
 package com.ccadmin.app.sale.controller;
 
-import com.ccadmin.app.pucharse.model.dto.PucharseRegisterDto;
 import com.ccadmin.app.sale.model.dto.PresaleRegisterDto;
-import com.ccadmin.app.sale.service.PresaleService;
+import com.ccadmin.app.sale.service.PresaleCreateService;
+import com.ccadmin.app.sale.service.PresaleSearchService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,38 +16,36 @@ import org.springframework.web.bind.annotation.*;
 public class PresaleController {
 
     public static Logger log = LogManager.getLogger(PresaleController.class);
-
     @Autowired
-    private PresaleService presaleService;
+    private PresaleCreateService presaleCreateService;
+    @Autowired
+    private PresaleSearchService presaleSearchService;
 
     @PostMapping("save")
     public ResponseEntity<ResponseWsDto> save(@RequestBody PresaleRegisterDto presaleRegister)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.presaleService.save(presaleRegister))
+                    new ResponseWsDto(this.presaleCreateService.save(presaleRegister))
                     , HttpStatus.OK
             );
         }
         catch (Exception ex)
         {
-            log.error("Error :"+ex.getMessage(), ex);
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
-
     @PostMapping("confirm")
     public ResponseEntity<ResponseWsDto> confirm(@RequestBody PresaleRegisterDto presaleRegister)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.presaleService.confirm(presaleRegister))
+                    new ResponseWsDto(this.presaleCreateService.confirm(presaleRegister))
                     , HttpStatus.OK
             );
         }
         catch (Exception ex)
         {
-            log.error("Error :"+ex.getMessage(), ex);
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
@@ -57,7 +55,7 @@ public class PresaleController {
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    this.presaleService.findDataForm(PresaleCod)
+                    this.presaleSearchService.findDataForm(PresaleCod)
                     ,HttpStatus.OK
             );
         }
@@ -72,12 +70,24 @@ public class PresaleController {
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.presaleService.findAll(Query,Page,StoreCod))
+                    new ResponseWsDto(this.presaleSearchService.findAll(Query,Page,StoreCod))
                     ,HttpStatus.OK
             );
         }
         catch (Exception ex)
         {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("createCode")
+    public ResponseEntity<ResponseWsDto> createCode(){
+        try{
+            return new ResponseEntity<>(
+                    new ResponseWsDto().okResponse(this.presaleCreateService.createCode())
+                    ,HttpStatus.OK
+            );
+        }catch (Exception ex){
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }

@@ -2,7 +2,6 @@ package com.ccadmin.app.shared.model.entity;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.MappedSuperclass;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -43,6 +42,33 @@ public class AuditTableEntity  {
         {
             addSessionModify(userCod);
         }
+    }
+
+    public void addSession(String userCod)
+    {
+        if(this.CreationUser==null || this.CreationUser.isEmpty()){
+            addSessionCreate(userCod);
+        }else{
+            addSessionModify(userCod);
+        }
+    }
+
+    public AuditTableEntity session(String userCod){
+        if(this.CreationUser==null || this.CreationUser.isEmpty()){
+            addSessionCreate(userCod);
+        }else{
+            addSessionModify(userCod);
+        }
+        return this;
+    }
+
+    public void inactive(String userCod){
+        this.addSession(userCod);
+        this.Status = "I";
+    }
+    public void active(String userCod){
+        this.addSession(userCod);
+        this.Status = "A";
     }
 
 }

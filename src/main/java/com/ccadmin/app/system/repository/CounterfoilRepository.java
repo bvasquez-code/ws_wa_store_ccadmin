@@ -19,6 +19,24 @@ public interface CounterfoilRepository extends JpaRepository<CounterfoilEntity,S
                 and cs.StoreCod = :StoreCod
             """, nativeQuery = true)
     public CounterfoilEntity findByStoreDefault(
-            @Param("DocumentType") String DocumentType,@Param("StoreCod") String StoreCod
+             @Param("DocumentType") String DocumentType
+            ,@Param("StoreCod") String StoreCod
+    );
+
+    @Query( value = """
+            select
+            	c.*
+            from counterfoil c
+                inner join counterfoil_store cs on c.CounterfoilCod = cs.CounterfoilCod
+            where
+                c.DocumentType = :DocumentType
+                and c.IsAutomatic = 'S'
+                and cs.StoreCod = :StoreCod
+                and c.GroupDocument = :GroupDocument
+            """, nativeQuery = true)
+    public CounterfoilEntity findByStoreDefault(
+             @Param("DocumentType") String DocumentType
+            ,@Param("StoreCod") String StoreCod
+            ,@Param("GroupDocument") String GroupDocument
     );
 }

@@ -23,4 +23,13 @@ public class ProductInfoService {
     {
         return this.productInfoRepository.saveAll(list);
     }
+
+    public ProductInfoEntity save(ProductInfoEntity productInfo)
+    {
+        return this.productInfoRepository.save(productInfo);
+    }
+
+    public List<ProductInfoEntity> findAll(){
+        return this.productInfoRepository.findAll();
+    }
 }

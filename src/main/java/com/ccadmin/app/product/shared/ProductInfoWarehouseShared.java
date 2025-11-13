@@ -24,4 +24,17 @@ public class ProductInfoWarehouseShared {
         return this.productInfoWarehouseService.saveAll(list);
     }
 
+    public ProductInfoWarehouseEntity save(ProductInfoWarehouseEntity productInfoWarehouse)
+    {
+        return this.productInfoWarehouseService.save(productInfoWarehouse);
+    }
+
+    public List<ProductInfoWarehouseEntity> findByStore(String StoreCod){
+        return this.productInfoWarehouseService.findByStore(StoreCod);
+    }
+
+    public List<ProductInfoWarehouseEntity> findInfoWarehouse(String StoreCod,String ProductCod){
+        return this.productInfoWarehouseService.findInfoWarehouse(StoreCod,ProductCod);
+    }
+
 }

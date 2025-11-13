@@ -85,4 +85,8 @@ public class AppMenuService extends SessionService {
 
         return appMenuStructureList;
     }
+
+    public List<AppMenuEntity> findByUser(String UserCod){
+        return this.appMenuRepository.findByUser(UserCod);
+    }
 }

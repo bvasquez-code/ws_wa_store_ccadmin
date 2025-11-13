@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @Entity
 @Table( name = "client" )
@@ -24,4 +25,5 @@ public class ClientEntity extends AuditTableEntity implements Serializable {
     {
 
     }
+
 }

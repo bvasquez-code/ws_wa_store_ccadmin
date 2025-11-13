@@ -32,4 +32,23 @@ public class ProductVariantEntity extends AuditTableEntity implements Serializab
         this.VariantDesc = "default";
     }
 
+    public ProductVariantEntity buildNew(String ProductCod){
+        this.ProductCod = ProductCod;
+        this.Variant = "0000";
+        this.VariantDesc = "default";
+        return this;
+    }
+    public ProductVariantEntity buildAdd(String ProductCod,String Variant,String VariantDesc){
+        this.ProductCod = ProductCod;
+        this.Variant = Variant;
+        this.VariantDesc = VariantDesc;
+        return this;
+    }
+
+    @Override
+    public ProductVariantEntity session(String userCod) {
+        this.addSession(userCod);
+        return this;
+    }
+
 }

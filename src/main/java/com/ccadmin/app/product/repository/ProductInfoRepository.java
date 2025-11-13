@@ -29,5 +29,18 @@ public interface ProductInfoRepository  extends JpaRepository<ProductInfoEntity,
             """, nativeQuery = true)
     public void saveAllInfo(@Param("ProductCod") String ProductCod);
 
+    @Modifying
+    @Query( value = """
+             INSERT INTO product_info
+             ( ProductCod , Variant , StoreCod , NumDigitalStock , NumPhysicalStock , CreationUser , CreationDate , Status  )
+             SELECT
+               prv.ProductCod , prv.Variant ,str.StoreCod , 0 , 0 , pro.CreationUser , NOW() , 'A'
+             FROM product pro, store str,product_variant prv
+             WHERE prv.ProductCod = pro.ProductCod
+             AND pro.ProductCod IN :ProductCodList
+            """, nativeQuery = true)
+    public void saveAllInfo(@Param("ProductCodList") List<String> ProductCodList);
+
+
 
 }

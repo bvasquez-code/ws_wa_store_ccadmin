@@ -15,6 +15,6 @@ public class PaymentMethodEntity extends AuditTableEntity implements Serializabl
     public String PaymentMethodCod;
     public String Name;
     public String Description;
-    public String IsCard;
+    public String PaymentMethodType;
 
 }

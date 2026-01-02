@@ -217,6 +217,7 @@ public class KardexService extends SessionService {
                     .get();
 
             if(kardex.SourceTable.equals("pucharse_head")){
+
                 kardexDto.dataTransaction = PucharseHeadList.stream()
                         .filter( e-> e.PucharseCod.equals(kardex.OperationCod))
                         .findFirst()

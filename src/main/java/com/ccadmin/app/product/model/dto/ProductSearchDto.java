@@ -6,5 +6,8 @@ public class ProductSearchDto extends SearchDto {
 
     public String BrandCod;
     public String CategoryCod;
+    public int StockMin;
+    public String SortedBy;
+    public String DirectionSortedBy;
 
 }

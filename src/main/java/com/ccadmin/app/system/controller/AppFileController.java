@@ -33,7 +33,7 @@ public class AppFileController {
         }
         catch (Exception ex)
         {
-            log.error("Error :"+ex.getMessage(), ex);
+            log.error("Error : {}",ex.getMessage(), ex);
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }

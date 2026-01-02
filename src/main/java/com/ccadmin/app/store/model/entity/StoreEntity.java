@@ -17,4 +17,5 @@ public class StoreEntity extends AuditTableEntity implements Serializable {
     public String Description;
     public String Address;
     public String UbigeoCod;
+    public String CompanyCod;
 }

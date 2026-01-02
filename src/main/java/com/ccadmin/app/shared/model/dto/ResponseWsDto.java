@@ -1,5 +1,6 @@
 package com.ccadmin.app.shared.model.dto;
 
+import com.ccadmin.app.system.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -59,6 +60,9 @@ public class ResponseWsDto {
 
     public void AddResponseAdditional(String name, Object data)
     {
+        if(StringUtil.isEmpty(name)){
+            throw new IllegalArgumentException("Name es obligatorio");
+        }
         this.DataAdditional.add( new ResponseAdditionalDto(name,data) );
     }
 

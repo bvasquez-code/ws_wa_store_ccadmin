@@ -52,7 +52,7 @@ public class ProductFindCreateService extends SessionService {
     @Transactional
     public ProductSearchEntity save(String ProductCod, String StoreCod)
     {
-        log.info(STR."GENERAR INFO PRODUCTO : \{ProductCod} PARA LA TIENDA \{StoreCod}");
+        log.info("GENERAR INFO PRODUCTO : {} PARA LA TIENDA {}",ProductCod,StoreCod);
         ProductEntity product = this.productRepository.findById(ProductCod).get();
         ProductConfigEntity productConfig = this.productConfigRepository.findById(ProductCod).get();
         List<ProductVariantEntity> variantList = this.productVariantRepository.findAllVariantProduct(ProductCod);
@@ -92,7 +92,7 @@ public class ProductFindCreateService extends SessionService {
         );
         productSearch.addSession(getUserCod());
 
-        log.info(STR."PRODUCTO RESUMEN : \{ProductCod} => \{productSearch.toString()}");
+        log.info("PRODUCTO RESUMEN : {} => {}",ProductCod,productSearch.toString());
         return this.productSearchRepository.save(productSearch);
     }
 

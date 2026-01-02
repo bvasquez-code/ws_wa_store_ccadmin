@@ -1,8 +1,11 @@
 package com.ccadmin.app.sale.repository;
 
 import com.ccadmin.app.sale.model.entity.SaleHeadEntity;
+import com.ccadmin.app.sale.model.idto.IExpectedTotalsDto;
 import com.ccadmin.app.shared.interfaceccadmin.CcAdminRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -48,4 +51,32 @@ public interface SaleHeadRepository extends JpaRepository<SaleHeadEntity,String>
             , @Param("init") int init
             , @Param("limit") int limit
     );
+
+    @Modifying
+    @Query(value = """
+            update sale_head set
+                HasCreditNote = :HasCreditNote
+            where
+                SaleCod = :SaleCod
+           """,nativeQuery = true)
+    void updateHasCreditNote(
+            @Param("SaleCod") String SaleCod,
+            @Param("HasCreditNote") String HasCreditNote
+    );
+
+    @Query(value = """
+            select
+              coalesce(sum(case when pm.PaymentMethodType = '1001' then sp.NumAmountPaid  else 0 end),0) as Cash,
+              coalesce(sum(case when pm.PaymentMethodType != '1001' then sp.NumAmountPaid else 0 end),0) as Other,
+              coalesce(sum(sp.NumAmountPaid),0) as Total
+            from sale_head sh
+            inner join sale_payments sp on sp.SaleCod = sh.SaleCod
+            inner join trx_payments tp on tp.TrxPaymentId = sp.TrxPaymentId
+            inner join payment_method pm on pm.PaymentMethodCod  = tp.PaymentMethodCod
+            where 
+            CashSessionID = :sessionId
+            and sh.Status = 'A'
+        """, nativeQuery = true)
+    IExpectedTotalsDto getExpectedTotalsForSession(@Param("sessionId") Long sessionId);
+
 }

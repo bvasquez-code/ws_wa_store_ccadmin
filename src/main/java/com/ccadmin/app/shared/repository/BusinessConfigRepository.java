@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BusinessConfigRepository extends JpaRepository<BusinessConfigEntity, BusinessConfigEntityID> {
 
@@ -19,6 +21,13 @@ public interface BusinessConfigRepository extends JpaRepository<BusinessConfigEn
     public BusinessConfigEntity findByConfigCod(
              @Param("GroupCod") String GroupCod
             ,@Param("ConfigCod") String ConfigCod
+    );
+
+    @Query( value = """
+            select * from business_config bc where bc.GroupCod = :GroupCod
+            """, nativeQuery = true)
+    List<BusinessConfigEntity> findByGroupCod(
+            @Param("GroupCod") String GroupCod
     );
 
 }

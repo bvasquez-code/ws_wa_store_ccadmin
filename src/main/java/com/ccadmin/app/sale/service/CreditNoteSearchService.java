@@ -11,12 +11,14 @@ import com.ccadmin.app.sale.model.entity.CreditNoteHeadEntity;
 import com.ccadmin.app.sale.repository.CreditNoteDetRepository;
 import com.ccadmin.app.sale.repository.CreditNoteDocumentRepository;
 import com.ccadmin.app.sale.repository.CreditNoteHeadRepository;
+import com.ccadmin.app.sale.repository.SalePaymentRepository;
 import com.ccadmin.app.shared.model.dto.ResponsePageSearchT;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
 import com.ccadmin.app.shared.service.SearchTService;
 import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.system.shared.CurrencyShared;
+import com.ccadmin.app.system.shared.PaymentMethodShared;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class CreditNoteSearchService {
     @Autowired
     private CreditNoteDocumentRepository creditNoteDocumentRepository;
     @Autowired
+    private SalePaymentRepository salePaymentRepository;
+    @Autowired
     private ClientShared clientShared;
     @Autowired
     private ProductShared productShared;
@@ -42,6 +46,8 @@ public class CreditNoteSearchService {
     private CurrencyShared currencyShared;
     @Autowired
     private StoreShared storeShared;
+    @Autowired
+    private PaymentMethodShared paymentMethodShared;
 
     private SearchTService<CreditNoteHeadEntity> searchTService;
 
@@ -91,6 +97,7 @@ public class CreditNoteSearchService {
         if(creditNoteDetail.Headboard.ClientCod != null && !creditNoteDetail.Headboard.ClientCod.isEmpty()){
             creditNoteDetail.Client = this.clientShared.findById(creditNoteDetail.Headboard.ClientCod);
         }
+        creditNoteDetail.DetailPayment = this.salePaymentRepository.findByCreditNoteCod(creditNoteDetail.Headboard.CreditNoteCod);
         creditNoteDetail.Document = this.creditNoteDocumentRepository.findByCreditNoteCod(creditNoteDetail.Headboard.CreditNoteCod);
 
         return creditNoteDetail;
@@ -117,6 +124,7 @@ public class CreditNoteSearchService {
         ResponseWsDto rpt = new ResponseWsDto();
         CreditNoteDetailDto creditNoteDetail = this.findById(CreditNoteCod);
         rpt.AddResponseAdditional("CreditNoteDetail",creditNoteDetail);
+        rpt.AddResponseAdditional("PaymentMethodList",this.paymentMethodShared.findAllActive());
         rpt.AddResponseAdditional("CurrencyList",this.currencyShared.findAllActive());
         rpt.AddResponseAdditional("Store",this.storeShared.findStoreInfo(creditNoteDetail.Headboard.StoreCod));
         return rpt;

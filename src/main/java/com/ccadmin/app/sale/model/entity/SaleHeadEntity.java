@@ -32,6 +32,7 @@ public class SaleHeadEntity extends AuditTableEntity implements Serializable {
     public String CurrencyCodSys;
     public BigDecimal NumExchangevalue;
     public String IsPaid;
+    public String HasCreditNote;
 
     @Transient
     public ClientEntity Client;
@@ -104,6 +105,7 @@ public class SaleHeadEntity extends AuditTableEntity implements Serializable {
         this.NumExchangevalue = presaleHead.NumExchangevalue;
         this.IsPaid = presaleHead.IsPaid;
         this.PeriodId = period.PeriodId;
+        this.HasCreditNote = "N";
         return this;
     }
 

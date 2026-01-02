@@ -49,7 +49,7 @@ public class ProductCreateService extends SessionService {
         productRegister.config.session(getUserCod())
                 .ProductCod = productRegister.product.ProductCod;
 
-        if(!productRegister.productBarcode.ProductCod.isEmpty()){
+        if(!productRegister.productBarcode.ProductCod.isEmpty() && !productRegister.productBarcode.BarCode.isEmpty()){
             Optional<ProductBarcodeEntity> productBarcode = this.productBarcodeRepository.findById(productRegister.productBarcode.BarCode);
             if(productBarcode.isPresent()){
                 if(!productBarcode.get().ProductCod.equals(productRegister.product.ProductCod)){

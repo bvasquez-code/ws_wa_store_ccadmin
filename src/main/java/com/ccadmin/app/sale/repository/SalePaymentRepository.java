@@ -26,4 +26,16 @@ public interface SalePaymentRepository extends JpaRepository<SalePaymentEntity, 
             """, nativeQuery = true)
     public List<SalePaymentEntity> findBySaleCod(@Param("SaleCod") String SaleCod);
 
+
+    @Query( value = """
+            select
+                sp.*
+            from sale_payments sp
+                inner join credit_note_head cn on cn.SaleCod = sp.SaleCod
+                inner join trx_payments tp on tp.TrxPaymentId = sp.TrxPaymentId
+            where cn.CreditNoteCod = :CreditNoteCod
+                and tp.TypeMovement = 'E'
+            """, nativeQuery = true)
+    public List<SalePaymentEntity> findByCreditNoteCod(@Param("CreditNoteCod") String CreditNoteCod);
+
 }

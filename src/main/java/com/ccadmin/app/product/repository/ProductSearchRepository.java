@@ -13,7 +13,7 @@ public interface ProductSearchRepository extends JpaRepository<ProductSearchEnti
 
     @Query(value = """
             select ps.* from product_search ps
-            where ps.ProductCod = :id or ps.ProductName like %:query% 
+            where (ps.ProductCod = :id or ps.ProductName like %:query%)
             and ps.StoreCod = :storeCod 
             and ps.Status = 'A'
             order by ps.NumTrend desc
@@ -30,7 +30,9 @@ public interface ProductSearchRepository extends JpaRepository<ProductSearchEnti
     @Override
     @Query(value = """
             select count(1) from product_search ps
-            where ps.ProductCod = :id or ps.ProductName like %:query% and ps.StoreCod = :storeCod and ps.Status = 'A'
+            where (ps.ProductCod = :id or ps.ProductName like %:query%)
+            and ps.StoreCod = :storeCod 
+            and ps.Status = 'A'
             """, nativeQuery = true)
     public int countByQueryTextStore(
             @Param("id") String id,
@@ -84,6 +86,49 @@ public interface ProductSearchRepository extends JpaRepository<ProductSearchEnti
     public ProductSearchEntity findResumeProduct(
              @Param("ProductCod") String ProductCod
             ,@Param("StoreCod") String StoreCod
+    );
+
+
+    @Query(value = """
+        select ps.* 
+        from product_search ps
+        where (ps.ProductCod = :id or ps.ProductName like %:query%) 
+          and ps.StoreCod = :storeCod 
+          and ps.Status = 'A'
+          and ps.NumPhysicalStock >= :stockMin
+        order by
+            CASE WHEN :orderBy = 'trend' THEN ps.NumTrend END
+                * IF(:direction = 'desc', -1, 1),
+            CASE WHEN :orderBy = 'price' THEN ps.NumPrice END
+                * IF(:direction = 'desc', -1, 1),
+            CASE WHEN :orderBy = 'date'  THEN UNIX_TIMESTAMP(ps.CreationDate) END
+                * IF(:direction = 'desc', -1, 1)
+        limit :init, :limit
+        """, nativeQuery = true)
+    List<ProductSearchEntity> findByQueryTextStorePersonalized(
+            @Param("id") String id,
+            @Param("query") String query,
+            @Param("storeCod") String storeCod,
+            @Param("stockMin") int stockMin,
+            @Param("orderBy") String orderBy,
+            @Param("direction") String direction,
+            @Param("init") int init,
+            @Param("limit") int limit
+    );
+
+    @Query(value = """
+        select count(1)
+        from product_search ps
+        where (ps.ProductCod = :id or ps.ProductName like %:query%) 
+          and ps.StoreCod = :storeCod 
+          and ps.Status = 'A'
+          and ps.NumPhysicalStock >= :stockMin
+        """, nativeQuery = true)
+    public int countByQueryTextStorePersonalized(
+            @Param("id") String id,
+            @Param("query") String query,
+            @Param("storeCod") String storeCod,
+            @Param("stockMin") int stockMin
     );
 
 }

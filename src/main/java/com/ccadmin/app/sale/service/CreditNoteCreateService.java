@@ -131,6 +131,7 @@ public class CreditNoteCreateService extends SessionService {
             salePayment = salePaymentCreateService.save(salePayment);
         }
         this.creditNoteHeadRepository.save(creditNoteHead);
+        this.saleHeadRepository.updateHasCreditNote(creditNoteRegister.Headboard.SaleCod,"S");
 
         return this.creditNoteSearchService.findById(creditNoteRegister.Headboard.CreditNoteCod);
     }

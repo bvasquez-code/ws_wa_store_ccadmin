@@ -8,10 +8,7 @@ import com.ccadmin.app.sale.model.dto.CreditNoteDetailDto;
 import com.ccadmin.app.sale.model.dto.CreditNoteHeadDto;
 import com.ccadmin.app.sale.model.entity.CreditNoteDocumentEntity;
 import com.ccadmin.app.sale.model.entity.CreditNoteHeadEntity;
-import com.ccadmin.app.sale.repository.CreditNoteDetRepository;
-import com.ccadmin.app.sale.repository.CreditNoteDocumentRepository;
-import com.ccadmin.app.sale.repository.CreditNoteHeadRepository;
-import com.ccadmin.app.sale.repository.SalePaymentRepository;
+import com.ccadmin.app.sale.repository.*;
 import com.ccadmin.app.shared.model.dto.ResponsePageSearchT;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
@@ -38,6 +35,8 @@ public class CreditNoteSearchService {
     private CreditNoteDocumentRepository creditNoteDocumentRepository;
     @Autowired
     private SalePaymentRepository salePaymentRepository;
+    @Autowired
+    private SaleDocumentRepository saleDocumentRepository;
     @Autowired
     private ClientShared clientShared;
     @Autowired
@@ -99,7 +98,7 @@ public class CreditNoteSearchService {
         }
         creditNoteDetail.DetailPayment = this.salePaymentRepository.findByCreditNoteCod(creditNoteDetail.Headboard.CreditNoteCod);
         creditNoteDetail.Document = this.creditNoteDocumentRepository.findByCreditNoteCod(creditNoteDetail.Headboard.CreditNoteCod);
-
+        creditNoteDetail.DocumentReference = this.saleDocumentRepository.findBySaleCod(creditNoteDetail.Headboard.SaleCod);
         return creditNoteDetail;
     }
 

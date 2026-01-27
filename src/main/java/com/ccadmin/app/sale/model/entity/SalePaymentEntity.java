@@ -87,8 +87,8 @@ public class SalePaymentEntity extends AuditTableEntity implements Serializable 
         reversal.CurrencyCod = originalPayment.CurrencyCod;
         reversal.CurrencyCodSys = originalPayment.CurrencyCodSys;
         reversal.NumExchangevalue = originalPayment.NumExchangevalue;
-        reversal.NumAmountPaid = originalPayment.NumAmountPaid.negate();
-        reversal.NumAmountPaidOrigin = originalPayment.NumAmountPaidOrigin.negate();
+        reversal.NumAmountPaid = originalPayment.NumAmountPaid.negate().add(originalPayment.NumAmountReturned);
+        reversal.NumAmountPaidOrigin = originalPayment.NumAmountPaidOrigin.negate().add(originalPayment.NumAmountReturned);
         reversal.NumAmountReturned = BigDecimal.ZERO;
         reversal.TrxPayment = trxPaymentReversal;
         reversal.CreationUser = creationUser;

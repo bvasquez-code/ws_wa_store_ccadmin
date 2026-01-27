@@ -56,7 +56,7 @@ public class TrxPaymentEntity extends AuditTableEntity implements Serializable {
         reversal.CurrencyCod = originalPayment.CurrencyCod;
         reversal.CurrencyCodSys = originalPayment.CurrencyCodSys;
         reversal.NumExchangevalue = originalPayment.NumExchangevalue;
-        reversal.AmountPaid = originalPayment.AmountPaid.negate();  // invierte el signo
+        reversal.AmountPaid = originalPayment.AmountPaid.negate().add(originalPayment.AmountReturned);  // invierte el signo
         reversal.AmountReturned = BigDecimal.ZERO;
         reversal.TypeMovement = "E"; // Extorno
         reversal.CreationUser = creationUser;

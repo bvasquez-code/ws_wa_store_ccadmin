@@ -57,6 +57,10 @@ public class TransferCreateService extends SessionService {
         return this.save(request, false);
     }
 
+    public String createCode(String storeCod){
+        return this.transferHeadRepository.getTransferCod(storeCod);
+    }
+
     private TransferRegisterBundleDto save(TransferRegisterBundleDto request, boolean isCreate) throws Exception {
         if (request == null || request.transferHead == null) {
             throw new TransferException("Información de transferencia es obligatoria");

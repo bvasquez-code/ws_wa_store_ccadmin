@@ -44,4 +44,5 @@ public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity
             @Param("transferCod") String transferCod,
             @Param("typeOperation") String typeOperation
     );
+
 }

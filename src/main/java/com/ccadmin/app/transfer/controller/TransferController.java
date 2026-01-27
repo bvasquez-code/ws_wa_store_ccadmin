@@ -151,4 +151,16 @@ public class TransferController {
             return new ResponseEntity<>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("createCode")
+    public ResponseEntity<ResponseWsDto> createCode(@RequestParam String storeCod){
+        try{
+            return new ResponseEntity<>(
+                    new ResponseWsDto().okResponse(this.transferCreateService.createCode(storeCod))
+                    ,HttpStatus.OK
+            );
+        }catch (Exception ex){
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
 }

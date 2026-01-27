@@ -60,6 +60,7 @@ class TransferCreateServiceTest {
     void createTe() throws Exception {
         TransferHeadEntity head = new TransferHeadEntity();
         head.TypeOperation = TransferConstants.TYPE_OPERATION_REQUEST;
+        head.TransferCod = "TR001";
         head.StoreCodOrigin = "S001";
         head.StoreCodDest = "S002";
 
@@ -85,7 +86,6 @@ class TransferCreateServiceTest {
         whDest.WarehouseCod = "WH2";
         whDest.Status = "A";
 
-        when(transferHeadRepository.getTransferCod("S001")).thenReturn("TR001");
         when(productShared.findById("P001")).thenReturn(product);
         when(warehouseRepository.findById("WH1")).thenReturn(Optional.of(whOrigin));
         when(warehouseRepository.findById("WH2")).thenReturn(Optional.of(whDest));
@@ -140,6 +140,43 @@ class TransferCreateServiceTest {
         when(transferDetRepository.findByTransferCodAndTypeOperation("TR002", TransferConstants.TYPE_OPERATION_REQUEST))
                 .thenReturn(List.of(teDet));
         when(productShared.findById("P002")).thenReturn(product);
+        when(transferHeadRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(transferDetRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TransferRegisterBundleDto result = transferCreateService.create(request);
+
+        Assertions.assertEquals(TransferConstants.STATUS_PENDING, result.transferHead.TransferStatus);
+        Assertions.assertEquals(1, result.transferDetList.size());
+    }
+
+    @Test
+    void createTsWithoutTe() throws Exception {
+        TransferHeadEntity headTs = new TransferHeadEntity();
+        headTs.TransferCod = "TR006";
+        headTs.TypeOperation = TransferConstants.TYPE_OPERATION_SEND;
+        headTs.StoreCodOrigin = "S001";
+        headTs.StoreCodDest = "S002";
+
+        TransferDetEntity tsDet = new TransferDetEntity();
+        tsDet.ProductCod = "P003";
+        tsDet.Variant = "0000";
+        tsDet.NumUnit = 7;
+
+        TransferRegisterBundleDto request = new TransferRegisterBundleDto();
+        request.transferHead = headTs;
+        request.transferDetList = List.of(tsDet);
+
+        ProductEntity product = new ProductEntity();
+        product.ProductCod = "P003";
+        product.Status = "A";
+
+        when(transferHeadRepository.findByTransferCodAndTypeOperation("TR006", TransferConstants.TYPE_OPERATION_REQUEST))
+                .thenReturn(null);
+        when(transferHeadRepository.findByTransferCodAndTypeOperation("TR006", TransferConstants.TYPE_OPERATION_SEND))
+                .thenReturn(null);
+        when(transferDetRepository.findByTransferCodAndTypeOperation("TR006", TransferConstants.TYPE_OPERATION_REQUEST))
+                .thenReturn(List.of());
+        when(productShared.findById("P003")).thenReturn(product);
         when(transferHeadRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(transferDetRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 

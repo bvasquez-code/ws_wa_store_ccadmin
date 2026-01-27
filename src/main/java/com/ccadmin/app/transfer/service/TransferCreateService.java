@@ -74,36 +74,30 @@ public class TransferCreateService extends SessionService {
         }
 
         boolean isNew = (head.TransferCod == null || head.TransferCod.trim().isEmpty());
+        if (isNew) {
+            throw new TransferException("TransferCod es obligatorio");
+        }
 
         if (TransferConstants.TYPE_OPERATION_REQUEST.equals(typeOperation)) {
-            if (isNew) {
-                head.TransferCod = this.transferHeadRepository.getTransferCod(head.StoreCodOrigin);
-            }
             if (StringUtil.isEmpty(head.TransferStatus)) {
                 head.TransferStatus = TransferConstants.STATUS_PENDING;
             }
         }
 
         if (TransferConstants.TYPE_OPERATION_SEND.equals(typeOperation)) {
-            if (isNew) {
-                if (StringUtil.isEmpty(head.TransferCod)) {
-                    throw new TransferException("TransferCod es obligatorio para transferencia de salida");
-                }
-            }
             TransferHeadEntity requestHead = this.transferHeadRepository.findByTransferCodAndTypeOperation(
                     head.TransferCod, TransferConstants.TYPE_OPERATION_REQUEST
             );
-            if (requestHead == null) {
-                throw new TransferException("No existe solicitud TE para la transferencia");
-            }
-            if (StringUtil.isEmpty(head.StoreCodOrigin)) {
-                head.StoreCodOrigin = requestHead.StoreCodOrigin;
-            }
-            if (StringUtil.isEmpty(head.StoreCodDest)) {
-                head.StoreCodDest = requestHead.StoreCodDest;
-            }
-            if (StringUtil.isEmpty(head.StoreCodRequestedBy)) {
-                head.StoreCodRequestedBy = requestHead.StoreCodRequestedBy;
+            if (requestHead != null) {
+                if (StringUtil.isEmpty(head.StoreCodOrigin)) {
+                    head.StoreCodOrigin = requestHead.StoreCodOrigin;
+                }
+                if (StringUtil.isEmpty(head.StoreCodDest)) {
+                    head.StoreCodDest = requestHead.StoreCodDest;
+                }
+                if (StringUtil.isEmpty(head.StoreCodRequestedBy)) {
+                    head.StoreCodRequestedBy = requestHead.StoreCodRequestedBy;
+                }
             }
             if (StringUtil.isEmpty(head.TransferStatus)) {
                 head.TransferStatus = TransferConstants.STATUS_PENDING;
@@ -460,7 +454,7 @@ public class TransferCreateService extends SessionService {
         );
 
         if (requestDetList.isEmpty()) {
-            throw new TransferException("Detalle TE no encontrado");
+            return;
         }
 
         Map<String, Integer> teQtyByProduct = new HashMap<>();

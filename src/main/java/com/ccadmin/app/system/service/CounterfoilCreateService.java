@@ -9,6 +9,7 @@ import com.ccadmin.app.system.model.entity.CounterfoilEntity;
 import com.ccadmin.app.system.model.entity.CounterfoilStoreEntity;
 import com.ccadmin.app.system.repository.CounterfoilRepository;
 import com.ccadmin.app.system.repository.CounterfoilStoreRepository;
+import com.ccadmin.app.transfer.model.entity.TransferDocumentEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,27 @@ public class CounterfoilCreateService extends SessionService {
         creditNoteDocument.CreditNoteCod = CreditNoteCod;
         creditNoteDocument.addSession(getUserCod());
         return creditNoteDocument;
+    }
+
+    public TransferDocumentEntity generateDocumentTransfer(String StoreCod, String DocumentType, String TransferCod)
+    {
+        TransferDocumentEntity transferDocument = new TransferDocumentEntity();
+        CounterfoilEntity counterfoil = this.counterfoilRepository.findByStoreDefault(DocumentType,StoreCod);
+
+        if(counterfoil == null){
+            throw new RuntimeException(STR."No existe talonario automático para documento \{DocumentType} y local \{StoreCod}");
+        }
+
+        counterfoil.Correlative = counterfoil.Correlative + 1;
+        this.counterfoilRepository.save(counterfoil);
+
+        int Correlative = 1000000 + counterfoil.Correlative;
+
+        transferDocument.DocumentCod = STR."\{counterfoil.Series}-\{String.valueOf(Correlative).substring(1, 7)}";
+        transferDocument.CounterfoilCod = counterfoil.CounterfoilCod;
+        transferDocument.TransferCod = TransferCod;
+        transferDocument.addSession(getUserCod());
+        return transferDocument;
     }
 
     @Transactional

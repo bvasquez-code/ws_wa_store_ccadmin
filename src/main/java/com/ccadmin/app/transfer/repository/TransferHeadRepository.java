@@ -39,4 +39,54 @@ public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity
             @Param("transferCod") String transferCod,
             @Param("typeOperation") String typeOperation
     );
+
+    @Query(value = """
+            select count(1) from transfer_head th
+            where
+                (:transferCod = '' or th.TransferCod = :transferCod)
+                and (:storeCodOrigin = '' or th.StoreCodOrigin = :storeCodOrigin)
+                and (:storeCodDest = '' or th.StoreCodDest = :storeCodDest)
+                and (:transferStatus = '' or th.TransferStatus = :transferStatus)
+                and (:typeOperation = '' or th.TypeOperation = :typeOperation)
+                and (:storeCodRequestedBy = '' or th.StoreCodRequestedBy = :storeCodRequestedBy)
+                and (:dateStart = '' or th.CreationDate >= :dateStart)
+                and (:dateEnd = '' or th.CreationDate <= :dateEnd)
+            """, nativeQuery = true)
+    int countByFilters(
+            @Param("transferCod") String transferCod,
+            @Param("storeCodOrigin") String storeCodOrigin,
+            @Param("storeCodDest") String storeCodDest,
+            @Param("transferStatus") String transferStatus,
+            @Param("typeOperation") String typeOperation,
+            @Param("storeCodRequestedBy") String storeCodRequestedBy,
+            @Param("dateStart") String dateStart,
+            @Param("dateEnd") String dateEnd
+    );
+
+    @Query(value = """
+            select th.* from transfer_head th
+            where
+                (:transferCod = '' or th.TransferCod = :transferCod)
+                and (:storeCodOrigin = '' or th.StoreCodOrigin = :storeCodOrigin)
+                and (:storeCodDest = '' or th.StoreCodDest = :storeCodDest)
+                and (:transferStatus = '' or th.TransferStatus = :transferStatus)
+                and (:typeOperation = '' or th.TypeOperation = :typeOperation)
+                and (:storeCodRequestedBy = '' or th.StoreCodRequestedBy = :storeCodRequestedBy)
+                and (:dateStart = '' or th.CreationDate >= :dateStart)
+                and (:dateEnd = '' or th.CreationDate <= :dateEnd)
+            order by th.CreationDate desc
+            limit :init,:limit
+            """, nativeQuery = true)
+    List<TransferHeadEntity> findByFilters(
+            @Param("transferCod") String transferCod,
+            @Param("storeCodOrigin") String storeCodOrigin,
+            @Param("storeCodDest") String storeCodDest,
+            @Param("transferStatus") String transferStatus,
+            @Param("typeOperation") String typeOperation,
+            @Param("storeCodRequestedBy") String storeCodRequestedBy,
+            @Param("dateStart") String dateStart,
+            @Param("dateEnd") String dateEnd,
+            @Param("init") int init,
+            @Param("limit") int limit
+    );
 }

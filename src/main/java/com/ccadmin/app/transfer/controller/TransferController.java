@@ -56,8 +56,8 @@ public class TransferController {
         }
     }
 
-    @GetMapping("{transferCod}")
-    public ResponseEntity<ResponseWsDto> findById(@PathVariable String transferCod) {
+    @GetMapping("findById")
+    public ResponseEntity<ResponseWsDto> findById(@RequestParam String transferCod) {
         try {
             return new ResponseEntity<>(
                     new ResponseWsDto().okResponse(this.transferSearchService.findByTransferCod(transferCod)),

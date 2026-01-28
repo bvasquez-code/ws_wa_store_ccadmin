@@ -431,6 +431,11 @@ public class TransferCreateService extends SessionService {
                     throw new TransferException("Almacén origen inactivo");
                 }
             }
+            if (StringUtil.isEmpty(det.WarehouseCodOrigin)) {
+                det.WarehouseCodOrigin = this.warehouseRepository.findByStore(head.StoreCodOrigin)
+                        .stream().findFirst()
+                        .get().WarehouseCod;
+            }
 
             if (StringUtil.isNotEmpty(det.WarehouseCodDest)) {
                 WarehouseEntity whDest = this.warehouseRepository.findById(det.WarehouseCodDest)
@@ -438,6 +443,11 @@ public class TransferCreateService extends SessionService {
                 if (!"A".equals(whDest.Status)) {
                     throw new TransferException("Almacén destino inactivo");
                 }
+            }
+            if (StringUtil.isEmpty(det.WarehouseCodDest)) {
+                det.WarehouseCodDest = this.warehouseRepository.findByStore(head.StoreCodDest)
+                        .stream().findFirst()
+                        .get().WarehouseCod;
             }
 
             det.addSession(getUserCod(), det.CreationUser == null || det.CreationUser.isEmpty());

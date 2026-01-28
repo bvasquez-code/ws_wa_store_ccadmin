@@ -4,6 +4,7 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.transfer.model.dto.TransferDispatchDto;
 import com.ccadmin.app.transfer.model.dto.TransferReceiveDto;
 import com.ccadmin.app.transfer.model.dto.TransferRegisterBundleDto;
+import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
 import com.ccadmin.app.transfer.service.TransferCreateService;
 import com.ccadmin.app.transfer.service.TransferSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,6 +162,18 @@ public class TransferController {
             );
         }catch (Exception ex){
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PostMapping("findAll")
+    public ResponseEntity<ResponseWsDto> findAll(@RequestBody TransferSearchDto request) {
+        try {
+            return new ResponseEntity<>(
+                    new ResponseWsDto(this.transferSearchService.findAll(request)),
+                    HttpStatus.OK
+            );
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST);
         }
     }
 }

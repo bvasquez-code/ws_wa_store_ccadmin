@@ -8,12 +8,14 @@ import com.ccadmin.app.store.model.dto.StoreInfoDto;
 import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.transfer.model.constants.TransferConstants;
 import com.ccadmin.app.transfer.model.dto.TransferDetailDto;
+import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
 import com.ccadmin.app.transfer.model.entity.TransferDetEntity;
 import com.ccadmin.app.transfer.model.entity.TransferDocumentEntity;
 import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
 import com.ccadmin.app.transfer.repository.TransferDetRepository;
 import com.ccadmin.app.transfer.repository.TransferDocumentRepository;
 import com.ccadmin.app.transfer.repository.TransferHeadRepository;
+import com.ccadmin.app.shared.model.dto.ResponsePageSearch;
 import com.ccadmin.app.system.utility.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,5 +111,52 @@ public class TransferSearchService extends SessionService {
             rpt.AddResponseAdditional("storeDest", storeDest);
         }
         return rpt;
+    }
+
+    public ResponsePageSearch findAll(TransferSearchDto searchDto) {
+        TransferSearchDto search = (searchDto == null) ? new TransferSearchDto() : searchDto;
+
+        String transferCod = normalize(search.TransferCod);
+        String storeCodOrigin = normalize(search.StoreCodOrigin);
+        String storeCodDest = normalize(search.StoreCodDest);
+        String transferStatus = normalize(search.TransferStatus);
+        String typeOperation = normalize(search.TypeOperation);
+        String storeCodRequestedBy = normalize(search.StoreCodRequestedBy);
+        String dateStart = normalize(search.DateStart);
+        String dateEnd = normalize(search.DateEnd);
+
+        int limit = 10;
+        int page = (search.Page <= 0) ? 1 : search.Page;
+        int init = (page - 1) * limit;
+
+        int total = this.transferHeadRepository.countByFilters(
+                transferCod,
+                storeCodOrigin,
+                storeCodDest,
+                transferStatus,
+                typeOperation,
+                storeCodRequestedBy,
+                dateStart,
+                dateEnd
+        );
+
+        List<TransferHeadEntity> result = this.transferHeadRepository.findByFilters(
+                transferCod,
+                storeCodOrigin,
+                storeCodDest,
+                transferStatus,
+                typeOperation,
+                storeCodRequestedBy,
+                dateStart,
+                dateEnd,
+                init,
+                limit
+        );
+
+        return new ResponsePageSearch(result, page, limit, total);
+    }
+
+    private String normalize(String value) {
+        return (value == null) ? "" : value.trim();
     }
 }

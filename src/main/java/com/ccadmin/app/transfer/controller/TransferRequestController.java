@@ -1,28 +1,25 @@
 package com.ccadmin.app.transfer.controller;
 
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
-import com.ccadmin.app.transfer.model.dto.TransferDispatchDto;
-import com.ccadmin.app.transfer.model.dto.TransferReceiveDto;
-import com.ccadmin.app.transfer.model.dto.TransferRegisterBundleDto;
-import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
-import com.ccadmin.app.transfer.service.TransferCreateService;
-import com.ccadmin.app.transfer.service.TransferSearchService;
+import com.ccadmin.app.transfer.model.dto.*;
+import com.ccadmin.app.transfer.service.TransferRequestCreateService;
+import com.ccadmin.app.transfer.service.TransferRequestSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/transfers")
-public class TransferController {
+@RequestMapping("api/v1/transfers-request")
+public class TransferRequestController {
 
     @Autowired
-    private TransferCreateService transferCreateService;
+    private TransferRequestCreateService transferCreateService;
     @Autowired
-    private TransferSearchService transferSearchService;
+    private TransferRequestSearchService transferSearchService;
 
     @PostMapping
-    public ResponseEntity<ResponseWsDto> create(@RequestBody TransferRegisterBundleDto request) {
+    public ResponseEntity<ResponseWsDto> create(@RequestBody TransferRequestRegisterBundleDto request) {
         try {
             return new ResponseEntity<>(
                     new ResponseWsDto(this.transferCreateService.create(request)),
@@ -34,7 +31,7 @@ public class TransferController {
     }
 
     @PutMapping
-    public ResponseEntity<ResponseWsDto> update(@RequestBody TransferRegisterBundleDto request) {
+    public ResponseEntity<ResponseWsDto> update(@RequestBody TransferRequestRegisterBundleDto request) {
         try {
             return new ResponseEntity<>(
                     new ResponseWsDto(this.transferCreateService.update(request)),
@@ -70,7 +67,7 @@ public class TransferController {
     }
 
     @PostMapping("register-bundle")
-    public ResponseEntity<ResponseWsDto> registerBundle(@RequestBody TransferRegisterBundleDto request) {
+    public ResponseEntity<ResponseWsDto> registerBundle(@RequestBody TransferRequestRegisterBundleDto request) {
         try {
             return new ResponseEntity<>(
                     new ResponseWsDto(this.transferCreateService.create(request)),
@@ -141,11 +138,23 @@ public class TransferController {
         }
     }
 
-    @GetMapping("findDataForm")
-    public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam String transferCod) {
+    @PostMapping("confirmed")
+    public ResponseEntity<ResponseWsDto> confirmed(@RequestBody TransferReceiveDto request) {
         try {
             return new ResponseEntity<>(
-                    this.transferSearchService.findDataForm(transferCod),
+                    this.transferCreateService.confirmedTransfer(request),
+                    HttpStatus.OK
+            );
+        } catch (Exception ex) {
+            return new ResponseEntity<>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findDataForm")
+    public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam String TransferReqCod) {
+        try {
+            return new ResponseEntity<>(
+                    this.transferSearchService.findDataForm(TransferReqCod),
                     HttpStatus.OK
             );
         } catch (Exception ex) {
@@ -154,10 +163,10 @@ public class TransferController {
     }
 
     @GetMapping("findDataPrint")
-    public ResponseEntity<ResponseWsDto> findDataPrint(@RequestParam String transferCod) {
+    public ResponseEntity<ResponseWsDto> findDataPrint(@RequestParam String TransferReqCod) {
         try {
             return new ResponseEntity<>(
-                    this.transferSearchService.findDataPrint(transferCod),
+                    this.transferSearchService.findDataPrint(TransferReqCod),
                     HttpStatus.OK
             );
         } catch (Exception ex) {

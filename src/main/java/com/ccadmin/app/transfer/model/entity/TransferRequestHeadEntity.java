@@ -10,17 +10,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "transfer_head")
-public class TransferHeadEntity extends AuditTableEntity implements Serializable {
+@Table(name = "transfer_request_head")
+public class TransferRequestHeadEntity extends AuditTableEntity implements Serializable {
 
     @Id
-    public String TransferCod;
+    public String TransferReqCod;
     public String TypeOperation;
     public String StoreCodOrigin;
     public String StoreCodDest;
     public String StoreCodRequestedBy;
     public String TransferStatus;
-    public String ReceiveStatus;
     public Date DispatchDate;
     public Date ArrivalDate;
     public String UserOriginConfirm;
@@ -29,11 +28,11 @@ public class TransferHeadEntity extends AuditTableEntity implements Serializable
     public Date DateDestConfirm;
     public String Observation;
 
-    public TransferHeadEntity() {
+    public TransferRequestHeadEntity() {
     }
 
-    public TransferHeadEntity validate() throws TransferException {
-        if (this.TransferCod == null || this.TransferCod.trim().isEmpty()) {
+    public TransferRequestHeadEntity validate() throws TransferException {
+        if (this.TransferReqCod == null || this.TransferReqCod.trim().isEmpty()) {
             throw new TransferException("Código de transferencia está vacío");
         }
         if (this.TypeOperation == null || this.TypeOperation.trim().isEmpty()) {
@@ -52,7 +51,7 @@ public class TransferHeadEntity extends AuditTableEntity implements Serializable
     }
 
     @Override
-    public TransferHeadEntity session(String userCod) {
+    public TransferRequestHeadEntity session(String userCod) {
         this.addSession(userCod);
         return this;
     }

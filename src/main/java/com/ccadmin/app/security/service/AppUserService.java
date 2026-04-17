@@ -10,6 +10,10 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
 import com.ccadmin.app.shared.service.SearchService;
 import com.ccadmin.app.shared.service.SessionService;
+import com.ccadmin.app.store.shared.StoreShared;
+import com.ccadmin.app.user.model.entity.UserStoreEntity;
+import com.ccadmin.app.user.repository.UserStoreRepository;
+import com.ccadmin.app.user.shared.UserStoreShared;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,9 +33,15 @@ public class AppUserService extends SessionService {
     private AppProfileRepository appProfileRepository;
     @Autowired
     private UserProfileRepository userProfileRepository;
+    @Autowired
+    private UserStoreRepository userStoreRepository;
 
     @Autowired
     private PersonShared personShared;
+    @Autowired
+    private StoreShared storeShared;
+    @Autowired
+    private UserStoreShared userStoreShared;
 
     private SearchService searchService;
 
@@ -79,7 +89,14 @@ public class AppUserService extends SessionService {
             item.addSession(getUserCod(),!this.appUserRepository.existsById(user.UserCod));
             item.UserCod = user.UserCod;
         }
+        for(var item : user.UserStoreList)
+        {
+            item.addSession(getUserCod(),!this.appUserRepository.existsById(user.UserCod));
+            item.UserCod = user.UserCod;
+            item.IsMainStore = "S";
+        }
         this.userProfileRepository.saveAll(user.UserProfileList);
+        this.userStoreRepository.saveAll(user.UserStoreList);
 
         return user;
     }
@@ -106,10 +123,12 @@ public class AppUserService extends SessionService {
         {
             UserOptional.get().Person = this.personShared.findById(UserOptional.get().PersonCod);
             UserOptional.get().UserProfileList = this.userProfileRepository.findAllByUser(UserOptional.get().UserCod);
+            UserOptional.get().UserStoreList = this.userStoreShared.findByUserCod(UserOptional.get().UserCod);
             rpt.AddResponseAdditional("User",UserOptional.get());
         }
 
         rpt.AddResponseAdditional("ProfileList",this.appProfileRepository.findAllActive());
+        rpt.AddResponseAdditional("StoreList",this.storeShared.findAll());
 
         return rpt;
     }

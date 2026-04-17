@@ -93,6 +93,39 @@ public interface CounterfoilRepository extends JpaRepository<CounterfoilEntity,S
                                             @Param("init") int init,
                                             @Param("limit") int limit);
 
+
+    @Override
+    @Query(value = """
+        select count(1)
+        from counterfoil c
+        inner join counterfoil_store cs on c.CounterfoilCod = cs.CounterfoilCod
+        where cs.StoreCod = :storeCod
+           and (c.CounterfoilCod = :id
+           or c.DocumentType like %:query%
+           or c.Series like %:query%)
+        """, nativeQuery = true)
+    int countByQueryTextStore(@Param("id") String id,
+                              @Param("query") String query,
+                              @Param("storeCod") String storeCod);
+
+    @Override
+    @Query(value = """
+        select c.*
+        from counterfoil c
+        inner join counterfoil_store cs on c.CounterfoilCod = cs.CounterfoilCod
+        where cs.StoreCod = :storeCod
+           and (c.CounterfoilCod = :id
+           or c.DocumentType like %:query%
+           or c.Series like %:query%)
+        order by c.CreationDate desc
+        limit :init, :limit
+        """, nativeQuery = true)
+    List<CounterfoilEntity> findByQueryTextStore(@Param("id") String id,
+                                                 @Param("query") String query,
+                                                 @Param("storeCod") String storeCod,
+                                                 @Param("init") int init,
+                                                 @Param("limit") int limit);
+
     // ====== Reserva de correlativo (update + select) ======
     @Modifying
     @Query(value = """

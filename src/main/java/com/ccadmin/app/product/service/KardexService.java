@@ -67,6 +67,8 @@ public class KardexService extends SessionService {
     @Transactional
     public List<KardexEntity> saveAll(List<KardexEntity> kardexList)
     {
+        kardexList.forEach(KardexEntity::validateNonNegativeStock);
+
         kardexList = this.kardexRepository.saveAll(kardexList);
         for(var kardex : kardexList){
             this.saveInfoProduct(kardex);

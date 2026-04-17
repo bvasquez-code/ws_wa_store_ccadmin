@@ -3,7 +3,6 @@ package com.ccadmin.app.security.controller;
 import com.ccadmin.app.security.model.entity.AppUserEntity;
 import com.ccadmin.app.security.service.AppUserService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
-import com.ccadmin.app.user.model.entity.AppMenuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -19,4 +19,14 @@ public interface TransferDocumentRepository extends JpaRepository<TransferDocume
             @Param("transferCod") String transferCod,
             @Param("typeOperation") String typeOperation
     );
+
+
+    @Query(value = """
+            select td.* from transfer_document td
+            where td.TransferCod = :transferCod
+            and td.Status = 'A'
+            """, nativeQuery = true)
+    List<TransferDocumentEntity> findByTransferCod(
+            @Param("transferCod") String transferCod
+    );
 }

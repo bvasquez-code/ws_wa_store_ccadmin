@@ -2,13 +2,12 @@ package com.ccadmin.app.transfer.model.constants;
 
 public final class TransferConstants {
 
-    public static final String TYPE_OPERATION_REQUEST = "TE";
+    public static final String TYPE_OPERATION_REQUEST = "TR";
     public static final String TYPE_OPERATION_SEND = "TS";
 
+    public static final String STATUS_APPROVED = "A";
     public static final String STATUS_PENDING = "P";
     public static final String STATUS_CONFIRMED = "C";
-    public static final String STATUS_DISPATCHED = "D";
-    public static final String STATUS_FINALIZED = "F";
     public static final String STATUS_REJECTED = "R";
     public static final String STATUS_CANCELLED = "X";
 

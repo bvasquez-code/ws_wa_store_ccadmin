@@ -37,9 +37,9 @@ public class CounterfoilSearchService extends SessionService {
         this.searchTService = new SearchTService<>(this.counterfoilRepository);
     }
 
-    public ResponsePageSearchT<CounterfoilEntity> findAll(String query, int page) {
-        SearchDto search = new SearchDto(query, page);
-        return this.searchTService.findAll(search, 10);
+    public ResponsePageSearchT<CounterfoilEntity> findAll(String query, int page,String StoreCod) {
+        SearchDto search = new SearchDto(query, page,StoreCod);
+        return this.searchTService.findAllStore(search, 10);
     }
 
     public CounterfoilEntity findById(String counterfoilCod) {

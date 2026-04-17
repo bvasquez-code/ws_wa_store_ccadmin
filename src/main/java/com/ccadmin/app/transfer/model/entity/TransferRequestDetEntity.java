@@ -3,30 +3,25 @@ package com.ccadmin.app.transfer.model.entity;
 import com.ccadmin.app.product.model.entity.ProductEntity;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
 import com.ccadmin.app.transfer.exception.TransferException;
-import com.ccadmin.app.transfer.model.entity.id.TransferDetId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import com.ccadmin.app.transfer.model.entity.id.TransferRequestDetId;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 
 @Entity
-@Table(name = "transfer_det")
-@IdClass(TransferDetId.class)
-public class TransferDetEntity extends AuditTableEntity implements Serializable {
+@Table(name = "transfer_request_det")
+@IdClass(TransferRequestDetId.class)
+public class TransferRequestDetEntity extends AuditTableEntity implements Serializable {
 
     @Id
-    public String TransferCod;
-    @Id
-    public String TypeOperation;
+    public String TransferReqCod;
     @Id
     public String ProductCod;
     @Id
     public String Variant;
     @Id
     public int ItemNumber;
+    public String TypeOperation;
     public String WarehouseCodOrigin;
     public String WarehouseCodDest;
     public int NumUnit;
@@ -38,11 +33,11 @@ public class TransferDetEntity extends AuditTableEntity implements Serializable 
     @Transient
     public ProductEntity Product;
 
-    public TransferDetEntity() {
+    public TransferRequestDetEntity() {
     }
 
-    public TransferDetEntity validate() throws TransferException {
-        if (this.TransferCod == null || this.TransferCod.trim().isEmpty()) {
+    public TransferRequestDetEntity validate() throws TransferException {
+        if (this.TransferReqCod == null || this.TransferReqCod.trim().isEmpty()) {
             throw new TransferException("Código de transferencia está vacío");
         }
         if (this.TypeOperation == null || this.TypeOperation.trim().isEmpty()) {
@@ -61,7 +56,7 @@ public class TransferDetEntity extends AuditTableEntity implements Serializable 
     }
 
     @Override
-    public TransferDetEntity session(String userCod) {
+    public TransferRequestDetEntity session(String userCod) {
         this.addSession(userCod);
         return this;
     }

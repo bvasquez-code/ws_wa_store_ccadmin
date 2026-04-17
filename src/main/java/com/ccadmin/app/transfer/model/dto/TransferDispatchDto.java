@@ -1,5 +1,9 @@
 package com.ccadmin.app.transfer.model.dto;
 
+import com.ccadmin.app.transfer.model.entity.TransferDetEntity;
+
+import java.util.List;
+
 public class TransferDispatchDto {
 
     public String transferCod;
@@ -13,4 +17,5 @@ public class TransferDispatchDto {
     public String carrierRuc;
     public String carrierName;
     public String observation;
+    public List<TransferDetEntity> detailListRequest;
 }

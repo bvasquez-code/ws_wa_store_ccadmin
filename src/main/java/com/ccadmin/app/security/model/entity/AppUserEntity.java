@@ -2,6 +2,8 @@ package com.ccadmin.app.security.model.entity;
 
 import com.ccadmin.app.person.model.entity.PersonEntity;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
+import com.ccadmin.app.user.model.entity.UserStoreEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -32,10 +34,14 @@ public class AppUserEntity extends AuditTableEntity implements Serializable {
     @Transient
     public List<UserProfileEntity> UserProfileList;
 
+    @Transient
+    public List<UserStoreEntity> UserStoreList;
+
     public AppUserEntity()
     {
         this.Person = new PersonEntity();
         this.UserProfileList = new ArrayList<>();
+        this.UserStoreList = new ArrayList<>();
     }
 
     public void clearDataSensitive()

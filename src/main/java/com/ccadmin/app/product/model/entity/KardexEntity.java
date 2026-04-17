@@ -1,5 +1,6 @@
 package com.ccadmin.app.product.model.entity;
 
+import com.ccadmin.app.product.exception.KardexExcepcion;
 import com.ccadmin.app.pucharse.model.entity.PucharseDetDeliveryEntity;
 import com.ccadmin.app.pucharse.model.entity.PucharseDetEntity;
 import com.ccadmin.app.sale.model.entity.CreditNoteDetWarehouseEntity;
@@ -63,6 +64,7 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
         this.NumStockMoved = saleDetWarehouse.NumUnit;
         this.NumStockAfter = this.NumStockBefore - saleDetWarehouse.NumUnit;
         this.TypeOperationCod = 1;
+        validateNonNegativeStock();
     }
 
     public KardexEntity(KardexEntity kardexLast, CreditNoteDetWarehouseEntity creditNoteDetWarehouse, String StoreCod){
@@ -83,5 +85,20 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
     public KardexEntity session(String userCod) {
         this.addSession(userCod);
         return this;
+    }
+
+    public void validateNonNegativeStock() {
+        if (this.NumStockAfter < 0) {
+            throw new KardexExcepcion(
+                    "Stock negativo no permitido. " +
+                            "ProductCod=" + this.ProductCod +
+                            ", Variant=" + this.Variant +
+                            ", StoreCod=" + this.StoreCod +
+                            ", WarehouseCod=" + this.WarehouseCod +
+                            ", NumStockBefore=" + this.NumStockBefore +
+                            ", NumStockMoved=" + this.NumStockMoved +
+                            ", NumStockAfter=" + this.NumStockAfter
+            );
+        }
     }
 }

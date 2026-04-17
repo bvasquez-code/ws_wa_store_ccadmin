@@ -53,7 +53,7 @@ public class ProductSearchService {
         if(Query!= null && !Query.isEmpty()){
             Optional<ResponsePageSearchT<ProductEntity>> rptOne = findAllOneResult(Query,Page);
             if(rptOne.isPresent()){
-                rptOne.get();
+                return rptOne.get();
             }
         }
         this.searchTService = new SearchTService<>(this.productRepository);

@@ -161,4 +161,8 @@ public final class StringUtil {
         if (start >= end) return "";
         return s.substring(start, end);
     }
+
+    public static String normalize(String value) {
+        return (value == null) ? "" : value.trim();
+    }
 }

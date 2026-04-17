@@ -1,50 +1,50 @@
 package com.ccadmin.app.transfer.repository;
 
 import com.ccadmin.app.shared.interfaceccadmin.CcAdminRepository;
-import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
+import com.ccadmin.app.transfer.model.entity.TransferRequestHeadEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity, String>, CcAdminRepository<TransferHeadEntity, String> {
+public interface TransferRequestHeadRepository extends JpaRepository<TransferRequestHeadEntity, String>, CcAdminRepository<TransferRequestHeadEntity, String> {
 
     @Query(value = """
-            CALL db_store_01.get_cod_trx(:storeCod, 'transfer_head')
+            CALL db_store_01.get_cod_trx(:storeCod, 'transfer_request_head')
             """, nativeQuery = true)
     String getTransferCod(@Param("storeCod") String storeCod);
 
     @Query(value = """
-            select th.* from transfer_head th
-            where th.TransferCod = :transferCod
+            select th.* from transfer_request_head th
+            where th.TransferReqCod = :TransferReqCod
             """, nativeQuery = true)
-    List<TransferHeadEntity> findByTransferCod(@Param("transferCod") String transferCod);
+    List<TransferRequestHeadEntity> findByTransferCod(@Param("TransferReqCod") String TransferReqCod);
 
     @Query(value = """
-            select th.* from transfer_head th
-            where th.TransferCod = :transferCod
+            select th.* from transfer_request_head th
+            where th.TransferReqCod = :TransferReqCod
             and th.TypeOperation = :typeOperation
             """, nativeQuery = true)
-    TransferHeadEntity findByTransferCodAndTypeOperation(
-            @Param("transferCod") String transferCod,
+    TransferRequestHeadEntity findByTransferCodAndTypeOperation(
+            @Param("TransferReqCod") String TransferReqCod,
             @Param("typeOperation") String typeOperation
     );
 
     @Query(value = """
-            select th.* from transfer_head th
-            where th.TransferCod = :transferCod
+            select th.* from transfer_request_head th
+            where th.TransferReqCod = :TransferReqCod
             and th.TypeOperation = :typeOperation
             """, nativeQuery = true)
-    TransferHeadEntity findByTransferCodAndTypeOperationForUpdate(
-            @Param("transferCod") String transferCod,
+    TransferRequestHeadEntity findByTransferCodAndTypeOperationForUpdate(
+            @Param("TransferReqCod") String TransferReqCod,
             @Param("typeOperation") String typeOperation
     );
 
     @Query(value = """
-            select count(1) from transfer_head th
+            select count(1) from transfer_request_head th
             where
-                (:transferCod = '' or th.TransferCod = :transferCod)
+                (:TransferReqCod = '' or th.TransferReqCod = :TransferReqCod)
                 and (:storeCodOrigin = '' or th.StoreCodOrigin = :storeCodOrigin)
                 and (:storeCodDest = '' or th.StoreCodDest = :storeCodDest)
                 and (:transferStatus = '' or th.TransferStatus = :transferStatus)
@@ -54,7 +54,7 @@ public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity
                 and (:dateEnd is null or th.CreationDate <= :dateEnd)
             """, nativeQuery = true)
     int countByFilters(
-            @Param("transferCod") String transferCod,
+            @Param("TransferReqCod") String TransferReqCod,
             @Param("storeCodOrigin") String storeCodOrigin,
             @Param("storeCodDest") String storeCodDest,
             @Param("transferStatus") String transferStatus,
@@ -65,9 +65,9 @@ public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity
     );
 
     @Query(value = """
-            select th.* from transfer_head th
+            select th.* from transfer_request_head th
             where
-                (:transferCod = '' or th.TransferCod = :transferCod)
+                (:TransferReqCod = '' or th.TransferReqCod = :TransferReqCod)
                 and (:storeCodOrigin = '' or th.StoreCodOrigin = :storeCodOrigin)
                 and (:storeCodDest = '' or th.StoreCodDest = :storeCodDest)
                 and (:transferStatus = '' or th.TransferStatus = :transferStatus)
@@ -78,8 +78,8 @@ public interface TransferHeadRepository extends JpaRepository<TransferHeadEntity
             order by th.CreationDate desc
             limit :init,:limit
             """, nativeQuery = true)
-    List<TransferHeadEntity> findByFilters(
-            @Param("transferCod") String transferCod,
+    List<TransferRequestHeadEntity> findByFilters(
+            @Param("TransferReqCod") String TransferReqCod,
             @Param("storeCodOrigin") String storeCodOrigin,
             @Param("storeCodDest") String storeCodDest,
             @Param("transferStatus") String transferStatus,

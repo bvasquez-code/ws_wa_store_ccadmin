@@ -2,21 +2,18 @@ package com.ccadmin.app.transfer.service;
 
 import com.ccadmin.app.product.model.entity.ProductEntity;
 import com.ccadmin.app.product.shared.ProductShared;
+import com.ccadmin.app.shared.model.dto.ResponsePageSearch;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.store.model.dto.StoreInfoDto;
 import com.ccadmin.app.store.shared.StoreShared;
-import com.ccadmin.app.transfer.model.constants.TransferConstants;
-import com.ccadmin.app.transfer.model.dto.TransferDetailDto;
-import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
-import com.ccadmin.app.transfer.model.entity.TransferDetEntity;
-import com.ccadmin.app.transfer.model.entity.TransferDocumentEntity;
-import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
-import com.ccadmin.app.transfer.repository.TransferDetRepository;
-import com.ccadmin.app.transfer.repository.TransferDocumentRepository;
-import com.ccadmin.app.transfer.repository.TransferHeadRepository;
-import com.ccadmin.app.shared.model.dto.ResponsePageSearch;
 import com.ccadmin.app.system.utility.StringUtil;
+import com.ccadmin.app.transfer.model.constants.TransferConstants;
+import com.ccadmin.app.transfer.model.dto.TransferRequestDetailDto;
+import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
+import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
+import com.ccadmin.app.transfer.model.entity.TransferRequestHeadEntity;
+import com.ccadmin.app.transfer.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class TransferSearchService extends SessionService {
+public class TransferRequestSearchService extends SessionService {
 
+    @Autowired
+    private TransferRequestHeadRepository transferRequestHeadRepository;
+    @Autowired
+    private TransferRequestDetRepository transferRequestDetRepository;
     @Autowired
     private TransferHeadRepository transferHeadRepository;
     @Autowired
@@ -37,33 +38,33 @@ public class TransferSearchService extends SessionService {
     @Autowired
     private StoreShared storeShared;
 
-    public TransferDetailDto findByTransferCod(String transferCod) {
-        TransferDetailDto detail = new TransferDetailDto();
+    public TransferRequestDetailDto findByTransferCod(String transferCod) {
+        TransferRequestDetailDto detail = new TransferRequestDetailDto();
 
-        TransferHeadEntity headTe = this.transferHeadRepository.findByTransferCodAndTypeOperation(
-                transferCod, TransferConstants.TYPE_OPERATION_REQUEST
-        );
-        TransferHeadEntity headTs = this.transferHeadRepository.findByTransferCodAndTypeOperation(
-                transferCod, TransferConstants.TYPE_OPERATION_SEND
-        );
+        TransferRequestHeadEntity headTe = this.transferRequestHeadRepository.findById(
+                transferCod
+        ).orElse(null);
+        TransferHeadEntity headTs = this.transferHeadRepository.findById(
+                transferCod
+        ).orElse(null);
 
         detail.transferHeadTe = headTe;
         detail.transferHeadTs = headTs;
 
         if (headTe != null) {
-            detail.transferDetTeList = this.transferDetRepository.findByTransferCodAndTypeOperation(
-                    transferCod, TransferConstants.TYPE_OPERATION_REQUEST
+            detail.transferDetTeList = this.transferRequestDetRepository.findByTransferCod(
+                    transferCod
             );
         } else {
             detail.transferDetTeList = new ArrayList<>();
         }
 
         if (headTs != null) {
-            detail.transferDetTsList = this.transferDetRepository.findByTransferCodAndTypeOperation(
-                    transferCod, TransferConstants.TYPE_OPERATION_SEND
+            detail.transferDetTsList = this.transferDetRepository.findByTransferCod(
+                    transferCod
             );
-            detail.transferDocumentList = this.transferDocumentRepository.findByTransferCodAndTypeOperation(
-                    transferCod, TransferConstants.TYPE_OPERATION_SEND
+            detail.transferDocumentList = this.transferDocumentRepository.findByTransferCod(
+                    transferCod
             );
         } else {
             detail.transferDetTsList = new ArrayList<>();
@@ -89,11 +90,11 @@ public class TransferSearchService extends SessionService {
         return detail;
     }
 
-    public ResponseWsDto findDataForm(String transferCod) {
+    public ResponseWsDto findDataForm(String TransferReqCod) {
         ResponseWsDto rpt = new ResponseWsDto();
 
-        if (StringUtil.isNotEmpty(transferCod)) {
-            rpt.AddResponseAdditional("transferDetail", findByTransferCod(transferCod));
+        if (StringUtil.isNotEmpty(TransferReqCod)) {
+            rpt.AddResponseAdditional("transferDetail", findByTransferCod(TransferReqCod));
         }
         rpt.AddResponseAdditional("storeList", this.storeShared.findAll());
         return rpt;
@@ -101,7 +102,7 @@ public class TransferSearchService extends SessionService {
 
     public ResponseWsDto findDataPrint(String transferCod) {
         ResponseWsDto rpt = new ResponseWsDto();
-        TransferDetailDto detail = findByTransferCod(transferCod);
+        TransferRequestDetailDto detail = findByTransferCod(transferCod);
 
         rpt.AddResponseAdditional("transferDetail", detail);
         if (detail.transferHeadTe != null) {
@@ -129,7 +130,7 @@ public class TransferSearchService extends SessionService {
         int page = (search.Page <= 0) ? 1 : search.Page;
         int init = (page - 1) * limit;
 
-        int total = this.transferHeadRepository.countByFilters(
+        int total = this.transferRequestHeadRepository.countByFilters(
                 transferCod,
                 storeCodOrigin,
                 storeCodDest,
@@ -140,7 +141,7 @@ public class TransferSearchService extends SessionService {
                 dateEnd
         );
 
-        List<TransferHeadEntity> result = this.transferHeadRepository.findByFilters(
+        List<TransferRequestHeadEntity> result = this.transferRequestHeadRepository.findByFilters(
                 transferCod,
                 storeCodOrigin,
                 storeCodDest,

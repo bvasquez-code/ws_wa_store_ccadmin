@@ -33,8 +33,8 @@ public class CounterfoilController {
     }
 
     @GetMapping("findAll")
-    public ResponseEntity<ResponseWsDto> findAll(@RequestParam String Query, @RequestParam int Page) {
-        try { return new ResponseEntity<>(new ResponseWsDto(counterfoilSearchService.findAll(Query, Page)), HttpStatus.OK); }
+    public ResponseEntity<ResponseWsDto> findAll(@RequestParam String Query, @RequestParam int Page, @RequestParam String StoreCod) {
+        try { return new ResponseEntity<>(new ResponseWsDto(counterfoilSearchService.findAll(Query, Page,StoreCod)), HttpStatus.OK); }
         catch (Exception ex) { return new ResponseEntity<>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST); }
     }
 

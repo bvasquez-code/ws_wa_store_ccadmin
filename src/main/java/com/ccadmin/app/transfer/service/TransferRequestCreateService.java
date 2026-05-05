@@ -204,7 +204,7 @@ public class TransferRequestCreateService extends SessionService {
 
             int stockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
             if (stockBefore < det.NumUnit) {
-                throw new TransferException(STR."Stock insuficiente para el producto \{det.ProductCod}");
+                throw new TransferException("Stock insuficiente para el producto "+det.ProductCod);
             }
 
             KardexEntity kardex = new KardexEntity();
@@ -404,7 +404,7 @@ public class TransferRequestCreateService extends SessionService {
 
             ProductEntity product = this.productShared.findById(det.ProductCod);
             if (product == null || !"A".equals(product.Status)) {
-                throw new TransferException(STR."Producto inválido o inactivo: \{det.ProductCod}");
+                throw new TransferException("Producto inválido o inactivo: "+det.ProductCod);
             }
 
             if (StringUtil.isNotEmpty(det.WarehouseCodOrigin)) {
@@ -452,13 +452,13 @@ public class TransferRequestCreateService extends SessionService {
 
         Map<String, Integer> teQtyByProduct = new HashMap<>();
         for (var det : requestDetList) {
-            String key = STR."\{det.ProductCod}-\{det.Variant}";
+            String key = det.ProductCod+"-"+det.Variant;
             teQtyByProduct.put(key, teQtyByProduct.getOrDefault(key, 0) + det.NumUnit);
         }
 
         Map<String, Integer> tsQtyByProduct = new HashMap<>();
         for (var det : detList) {
-            String key = STR."\{det.ProductCod}-\{det.Variant}";
+            String key = det.ProductCod+"-"+det.Variant;
             tsQtyByProduct.put(key, tsQtyByProduct.getOrDefault(key, 0) + det.NumUnit);
         }
 

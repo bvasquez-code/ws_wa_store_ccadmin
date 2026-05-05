@@ -68,7 +68,7 @@ public class PresaleCreateService extends SessionService {
     @Transactional
     public PresaleDetailDto save(PresaleRegisterDto presaleRegister) throws PresaleBuildException {
 
-        log.info(STR."INI - CREACION DE PREVENTA : \{presaleRegister.Headboard.PresaleCod}");
+        log.info("INI - CREACION DE PREVENTA : {}",presaleRegister.Headboard.PresaleCod);
         presaleRegister.Headboard = this.createPresaleHead(presaleRegister);
         presaleRegister.DetailList = this.recalculateAmountPresaleDet(presaleRegister);
         presaleRegister.Headboard = this.recalculateAmountPresaleHead(presaleRegister);
@@ -79,7 +79,7 @@ public class PresaleCreateService extends SessionService {
         this.presaleDetWarehouseRepository.saveAll(presaleDetWarehouseList);
         PresaleDetailDto  presaleDetail = presaleSearchService.findById(presaleRegister.Headboard.PresaleCod);
         this.rankingProduct(presaleDetail);
-        log.info(STR."FIN - CREACION DE VENTA : \{presaleRegister.Headboard.PresaleCod}");
+        log.info("FIN - CREACION DE VENTA : {}",presaleRegister.Headboard.PresaleCod);
         return presaleDetail;
     }
 

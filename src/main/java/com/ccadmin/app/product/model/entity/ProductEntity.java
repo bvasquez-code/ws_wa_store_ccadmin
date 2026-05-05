@@ -51,6 +51,17 @@ public class ProductEntity  extends AuditTableEntity implements Serializable  {
 
     @Override
     public String toString() {
-        return STR."ProductEntity{ProductCod='\{ProductCod}\{'\''}, CategoryCod='\{CategoryCod}\{'\''}, BrandCod='\{BrandCod}\{'\''}, ProductName='\{ProductName}\{'\''}, ProductDesc='\{ProductDesc}\{'\''}\{'}'}";
+        return "ProductEntity{" +
+                "ProductCod='" + ProductCod + '\'' +
+                ", CategoryCod='" + CategoryCod + '\'' +
+                ", BrandCod='" + BrandCod + '\'' +
+                ", ProductName='" + ProductName + '\'' +
+                ", ProductDesc='" + ProductDesc + '\'' +
+                ", CreationUser='" + CreationUser + '\'' +
+                ", CreationDate=" + CreationDate +
+                ", ModifyUser='" + ModifyUser + '\'' +
+                ", ModifyDate=" + ModifyDate +
+                ", Status='" + Status + '\'' +
+                '}';
     }
 }

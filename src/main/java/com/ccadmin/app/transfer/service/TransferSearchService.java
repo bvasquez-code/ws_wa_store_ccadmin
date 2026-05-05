@@ -6,6 +6,8 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.store.model.dto.StoreInfoDto;
 import com.ccadmin.app.store.shared.StoreShared;
+import com.ccadmin.app.store.shared.WarehouseShared;
+import com.ccadmin.app.transfer.exception.TransferException;
 import com.ccadmin.app.transfer.model.constants.TransferConstants;
 import com.ccadmin.app.transfer.model.dto.TransferDetailDto;
 import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
@@ -36,6 +38,8 @@ public class TransferSearchService extends SessionService {
     private ProductShared productShared;
     @Autowired
     private StoreShared storeShared;
+    @Autowired
+    private WarehouseShared warehouseShared;
 
     public TransferDetailDto findByTransferCod(String transferCod) {
         TransferDetailDto detail = new TransferDetailDto();
@@ -96,6 +100,7 @@ public class TransferSearchService extends SessionService {
             rpt.AddResponseAdditional("transferDetail", findByTransferCod(transferCod));
         }
         rpt.AddResponseAdditional("storeList", this.storeShared.findAll());
+        rpt.AddResponseAdditional("warehouseList", this.warehouseShared.findAll());
         return rpt;
     }
 
@@ -159,4 +164,6 @@ public class TransferSearchService extends SessionService {
     private String normalize(String value) {
         return (value == null) ? "" : value.trim();
     }
+
+
 }

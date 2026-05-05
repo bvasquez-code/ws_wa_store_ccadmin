@@ -10,6 +10,7 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
 import com.ccadmin.app.shared.service.SearchTService;
 import com.ccadmin.app.system.shared.AppFileShared;
+import com.ccadmin.app.system.shared.SystemDocumentShared;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public class ProductSearchService {
     private CategoryRepository categoryRepository;
     @Autowired
     private AppFileShared appFileShared;
+    @Autowired
+    private SystemDocumentShared systemDocumentShared;
     private SearchTService<ProductEntity> searchTService;
 
     public ProductEntity findById(String ProductCod)
@@ -128,4 +131,12 @@ public class ProductSearchService {
         return this.productRepository.findByCategoryCod(CategoryCod);
     }
 
+    public ResponseWsDto findDataFormMassive() {
+
+        ResponseWsDto rpt = new ResponseWsDto();
+        rpt.AddResponseAdditional("brandList",this.brandRepository.findAllActive());
+        rpt.AddResponseAdditional("categoryList",this.categoryRepository.findAllActiveNoDad());
+        rpt.AddResponseAdditional("bulkUploadFormatProducts",this.systemDocumentShared.findById("EXCEL_REG_MASIVO_PROD"));
+        return rpt;
+    }
 }

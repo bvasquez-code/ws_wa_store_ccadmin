@@ -31,5 +31,8 @@ public class WarehouseService {
         return this.warehouseRepository.findByStore(StoreCod);
     }
 
-
+    public List<WarehouseEntity> findAll()
+    {
+        return this.warehouseRepository.findAll();
+    }
 }

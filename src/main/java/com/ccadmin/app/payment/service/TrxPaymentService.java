@@ -62,7 +62,7 @@ public class TrxPaymentService extends SessionService {
         if(trxPayment.PaymentMethodCod.equals("NC001")){
             TrxPaymentEntity trxPaymentDB = this.trxPaymentRepository.findByTransactionId(trxPayment.TransactionId);
             if(trxPaymentDB!=null && trxPaymentDB.Status.equals("A")){
-                throw new TrxPaymentBuildException(STR."Pago con nota de crédito ya fue usado : \{trxPaymentDB.TransactionId}");
+                throw new TrxPaymentBuildException("Pago con nota de crédito ya fue usado : "+trxPaymentDB.TransactionId);
             }
         }
     }

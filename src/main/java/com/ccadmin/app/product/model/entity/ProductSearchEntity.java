@@ -1,6 +1,5 @@
 package com.ccadmin.app.product.model.entity;
 
-import com.ccadmin.app.product.model.entity.id.ProductInfoId;
 import com.ccadmin.app.product.model.entity.id.ProductSearchID;
 import com.ccadmin.app.shared.model.entity.AuditTableEntity;
 import com.ccadmin.app.system.model.entity.AppFileEntity;
@@ -12,11 +11,10 @@ import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table( name = "product_search" )
+@Table(name = "product_search")
 @IdClass(ProductSearchID.class)
 public class ProductSearchEntity extends AuditTableEntity implements Serializable {
 
@@ -46,25 +44,21 @@ public class ProductSearchEntity extends AuditTableEntity implements Serializabl
     public String FileRoute;
     public int NumTrend;
 
-    public ProductSearchEntity()
-    {
+    public ProductSearchEntity() {
 
     }
 
     public ProductSearchEntity(
-            ProductEntity product,ProductConfigEntity productConfig
-            ,List<ProductInfoEntity> productInfoList,CategoryEntity category,CategoryEntity categoryDad
-            ,BrandEntity brand,CurrencyEntity currencySys,ProductPictureEntity productPicture,AppFileEntity appFile
-            ,ProductRankingEntity productRanking
-            ,String StoreCod
-    )
-    {
+            ProductEntity product, ProductConfigEntity productConfig, List<ProductInfoEntity> productInfoList,
+            CategoryEntity category, CategoryEntity categoryDad, BrandEntity brand, CurrencyEntity currencySys,
+            ProductPictureEntity productPicture, AppFileEntity appFile, ProductRankingEntity productRanking,
+            String StoreCod) {
         this.ProductCod = product.ProductCod;
         this.StoreCod = StoreCod;
         this.ProductName = product.ProductName;
         this.ProductDesc = product.ProductDesc;
-        this.NumDigitalStock = productInfoList.stream().mapToInt( e -> e.NumDigitalStock ).sum();
-        this.NumPhysicalStock = productInfoList.stream().mapToInt( e -> e.NumPhysicalStock ).sum();
+        this.NumDigitalStock = productInfoList.stream().mapToInt(e -> e.NumDigitalStock).sum();
+        this.NumPhysicalStock = productInfoList.stream().mapToInt(e -> e.NumPhysicalStock).sum();
         this.NumPrice = productConfig.NumPrice;
         this.NumMaxStock = productConfig.NumMaxStock;
         this.NumMinStock = productConfig.NumMinStock;
@@ -80,8 +74,7 @@ public class ProductSearchEntity extends AuditTableEntity implements Serializabl
         this.CurrencyCod = currencySys.CurrencyCod;
         this.CurrencySymbol = currencySys.CurrencySymbol;
         this.NumTrend = productRanking.RankingPoints;
-        if(appFile!=null)
-        {
+        if (appFile != null) {
             this.FileCod = appFile.FileCod;
             this.FileRoute = appFile.Route;
         }
@@ -90,6 +83,30 @@ public class ProductSearchEntity extends AuditTableEntity implements Serializabl
 
     @Override
     public String toString() {
-        return STR."ProductSearchEntity{ProductCod='\{ProductCod}\{'\''}, StoreCod='\{StoreCod}\{'\''}, ProductName='\{ProductName}\{'\''}, ProductDesc='\{ProductDesc}\{'\''}, NumDigitalStock=\{NumDigitalStock}, NumPhysicalStock=\{NumPhysicalStock}, NumPrice=\{NumPrice}, NumMaxStock=\{NumMaxStock}, NumMinStock=\{NumMinStock}, IsDiscontable='\{IsDiscontable}\{'\''}, DiscountType='\{DiscountType}\{'\''}, NumDiscountMax=\{NumDiscountMax}, BrandCod='\{BrandCod}\{'\''}, BrandName='\{BrandName}\{'\''}, CategoryCod='\{CategoryCod}\{'\''}, CategoryName='\{CategoryName}\{'\''}, CategoryDadCod='\{CategoryDadCod}\{'\''}, CategoryDadName='\{CategoryDadName}\{'\''}, CurrencyCod='\{CurrencyCod}\{'\''}, CurrencySymbol='\{CurrencySymbol}\{'\''}, FileCod='\{FileCod}\{'\''}, FileRoute='\{FileRoute}\{'\''}, NumTrend=\{NumTrend}, CreationUser='\{CreationUser}\{'\''}, CreationDate=\{CreationDate}, ModifyUser='\{ModifyUser}\{'\''}, ModifyDate=\{ModifyDate}, Status='\{Status}\{'\''}\{'}'}";
+        return "ProductSearchEntity{" +
+                "ProductCod='" + ProductCod + '\'' +
+                ", StoreCod='" + StoreCod + '\'' +
+                ", ProductName='" + ProductName + '\'' +
+                ", ProductDesc='" + ProductDesc + '\'' +
+                ", NumDigitalStock=" + NumDigitalStock +
+                ", NumPhysicalStock=" + NumPhysicalStock +
+                ", NumPrice=" + NumPrice +
+                ", NumMaxStock=" + NumMaxStock +
+                ", NumMinStock=" + NumMinStock +
+                ", IsDiscontable='" + IsDiscontable + '\'' +
+                ", DiscountType='" + DiscountType + '\'' +
+                ", NumDiscountMax=" + NumDiscountMax +
+                ", BrandCod='" + BrandCod + '\'' +
+                ", BrandName='" + BrandName + '\'' +
+                ", CategoryCod='" + CategoryCod + '\'' +
+                ", CategoryName='" + CategoryName + '\'' +
+                ", CategoryDadCod='" + CategoryDadCod + '\'' +
+                ", CategoryDadName='" + CategoryDadName + '\'' +
+                ", CurrencyCod='" + CurrencyCod + '\'' +
+                ", CurrencySymbol='" + CurrencySymbol + '\'' +
+                ", FileCod='" + FileCod + '\'' +
+                ", FileRoute='" + FileRoute + '\'' +
+                ", NumTrend=" + NumTrend +
+                '}';
     }
 }

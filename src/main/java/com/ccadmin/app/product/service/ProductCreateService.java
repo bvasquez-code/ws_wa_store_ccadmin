@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,15 +43,15 @@ public class ProductCreateService extends SessionService {
     private GenericQueuedService genericQueuedService;
 
     @Transactional
-    public ProductRegisterDto save(ProductRegisterDto productRegister){
+    public ProductRegisterDto save(ProductRegisterDto productRegister) {
         productRegister.product.session(getUserCod());
-        productRegister.config.session(getUserCod())
-                .ProductCod = productRegister.product.ProductCod;
+        productRegister.config.session(getUserCod()).ProductCod = productRegister.product.ProductCod;
 
-        if(!productRegister.productBarcode.ProductCod.isEmpty() && !productRegister.productBarcode.BarCode.isEmpty()){
-            Optional<ProductBarcodeEntity> productBarcode = this.productBarcodeRepository.findById(productRegister.productBarcode.BarCode);
-            if(productBarcode.isPresent()){
-                if(!productBarcode.get().ProductCod.equals(productRegister.product.ProductCod)){
+        if (!productRegister.productBarcode.ProductCod.isEmpty() && !productRegister.productBarcode.BarCode.isEmpty()) {
+            Optional<ProductBarcodeEntity> productBarcode = this.productBarcodeRepository
+                    .findById(productRegister.productBarcode.BarCode);
+            if (productBarcode.isPresent()) {
+                if (!productBarcode.get().ProductCod.equals(productRegister.product.ProductCod)) {
                     throw new ProductBuildException("Codigo de barras esta registrado con otros productos.");
                 }
             }
@@ -67,20 +66,19 @@ public class ProductCreateService extends SessionService {
         this.productRepository.save(productRegister.product);
         this.productConfigRepository.save(productRegister.config);
 
-        if(!existProduct){
+        if (!existProduct) {
             this.productVariantRepository.save(variant);
             this.productInfoRepository.saveAllInfo(productRegister.product.ProductCod);
             this.productInfoWarehouseRepository.saveAllInfo(productRegister.product.ProductCod);
         }
-        if(!productRegister.productBarcode.ProductCod.isEmpty()){
+        if (!productRegister.productBarcode.ProductCod.isEmpty()) {
             this.productBarcodeRepository.save(productRegister.productBarcode);
         }
 
-        if(productRegister.pictureList!= null && productRegister.pictureList.size()>0){
+        if (productRegister.pictureList != null && productRegister.pictureList.size() > 0) {
             productRegister.pictureList.forEach(
-                    e-> e.session(getUserCod())
-            );
-            this.productPictureRepository.updateAllStatus(productRegister.product.ProductCod,"I");
+                    e -> e.session(getUserCod()));
+            this.productPictureRepository.updateAllStatus(productRegister.product.ProductCod, "I");
             this.productPictureRepository.saveAll(productRegister.pictureList);
         }
         this.productFindCreateService.generateSearch(productRegister.product.ProductCod);
@@ -88,41 +86,40 @@ public class ProductCreateService extends SessionService {
     }
 
     @Transactional
-    public ResponseWsDto saveAll(ProductRegisterMassiveDto productRegisterMassive)
-    {
+    public ResponseWsDto saveAll(ProductRegisterMassiveDto productRegisterMassive) {
         ResponseWsDto rpt = new ResponseWsDto();
         ProductRegisterMassiveDto registerMassiveFail = new ProductRegisterMassiveDto();
         ProductRegisterMassiveDto registerMassiveExists = new ProductRegisterMassiveDto();
         ProductRegisterMassiveDto registerMassiveOk = new ProductRegisterMassiveDto();
 
-        for(var productRegister : productRegisterMassive.productList){
+        for (var productRegister : productRegisterMassive.productList) {
             try {
                 productRegister.product.session(getUserCod()).validate();
 
-                if(this.productRepository.existsById(productRegister.product.ProductCod)){
+                if (this.productRepository.existsById(productRegister.product.ProductCod)) {
                     registerMassiveExists.productList.add(productRegister);
-                }else{
+                } else {
                     registerMassiveOk.productList.add(productRegister);
                 }
-            }catch (Exception ex){
-                log.error(STR."Error en saveAll :\{productRegister.product.toString()} ==> \{ex.getMessage()}");
+            } catch (Exception ex) {
+                log.error("Error en saveAll :{} ==> {}", productRegister.product.toString(), ex.getMessage());
                 registerMassiveFail.productList.add(productRegister);
             }
         }
 
         List<String> productCodList = registerMassiveOk.productList
                 .stream()
-                .map( productRegister -> productRegister.product.ProductCod)
+                .map(productRegister -> productRegister.product.ProductCod)
                 .toList();
 
         List<ProductEntity> productList = registerMassiveOk.productList
                 .stream()
-                .map( productRegister -> productRegister.product)
+                .map(productRegister -> productRegister.product)
                 .toList();
 
         List<ProductConfigEntity> configList = registerMassiveOk.productList
                 .stream()
-                .map( productRegister -> {
+                .map(productRegister -> {
                     productRegister.config.session(getUserCod());
                     productRegister.config.ProductCod = productRegister.product.ProductCod;
                     return productRegister.config;
@@ -131,7 +128,7 @@ public class ProductCreateService extends SessionService {
 
         List<ProductVariantEntity> variantList = registerMassiveOk.productList
                 .stream()
-                .map( productRegister -> new ProductVariantEntity()
+                .map(productRegister -> new ProductVariantEntity()
                         .buildNew(productRegister.product.ProductCod)
                         .session(getUserCod()))
                 .toList();
@@ -144,28 +141,27 @@ public class ProductCreateService extends SessionService {
 
         generateSearchQueued(productCodList);
 
-        rpt.AddResponseAdditional("registerMassiveFail",registerMassiveFail);
-        rpt.AddResponseAdditional("registerMassiveExists",registerMassiveExists);
+        rpt.AddResponseAdditional("registerMassiveFail", registerMassiveFail);
+        rpt.AddResponseAdditional("registerMassiveExists", registerMassiveExists);
         return rpt;
     }
+
     @Transactional
-    public ProductPictureEntity deletePicture(ProductPictureEntity productPicture){
+    public ProductPictureEntity deletePicture(ProductPictureEntity productPicture) {
 
         Optional<ProductPictureEntity> productPictureServer = this.productPictureRepository.findById(
-                new ProductPictureID(productPicture.ProductCod,productPicture.FileCod)
-        );
+                new ProductPictureID(productPicture.ProductCod, productPicture.FileCod));
 
-        if(productPictureServer.isPresent()){
+        if (productPictureServer.isPresent()) {
             productPictureServer.get().inactive(getUserCod());
             return this.productPictureRepository.save(productPictureServer.get());
         }
         return null;
     }
 
-    public void generateSearchQueued(List<String> productCodList){
+    public void generateSearchQueued(List<String> productCodList) {
         ProductCreateTaskService productCreateTaskService = new ProductCreateTaskService(
-                this.productFindCreateService,productCodList
-        );
+                this.productFindCreateService, productCodList);
         this.genericQueuedService.addQueued(productCreateTaskService);
     }
 }

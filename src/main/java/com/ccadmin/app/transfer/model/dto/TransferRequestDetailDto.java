@@ -5,9 +5,9 @@ import com.ccadmin.app.transfer.model.entity.*;
 import java.util.List;
 
 public class TransferRequestDetailDto {
-    public TransferRequestHeadEntity transferHeadTe;
-    public TransferHeadEntity transferHeadTs;
-    public List<TransferRequestDetEntity> transferDetTeList;
-    public List<TransferDetEntity> transferDetTsList;
+    public TransferRequestHeadEntity transferHeadRequest;
+    public TransferHeadEntity transferHead;
+    public List<TransferRequestDetEntity> transferDetRequestList;
+    public List<TransferDetEntity> transferDetList;
     public List<TransferDocumentEntity> transferDocumentList;
 }

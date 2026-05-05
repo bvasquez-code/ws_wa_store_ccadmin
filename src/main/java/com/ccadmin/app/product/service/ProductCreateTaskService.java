@@ -18,9 +18,9 @@ public class ProductCreateTaskService implements IGenericTaskService {
     @Override
     public void execute() {
         for(String productCod : this.productCodList){
-            log.info("INI-GENERANDO INFO DE BUSQUEDA :"+productCod);
+            log.info("INI-GENERANDO INFO DE BUSQUEDA : {}",productCod);
             this.productFindCreateService.generateSearch(productCod);
-            log.info("FIN-GENERANDO INFO DE BUSQUEDA :"+productCod);
+            log.info("FIN-GENERANDO INFO DE BUSQUEDA  {}",productCod);
         }
     }
 }

@@ -7,8 +7,8 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.store.model.dto.StoreInfoDto;
 import com.ccadmin.app.store.shared.StoreShared;
+import com.ccadmin.app.store.shared.WarehouseShared;
 import com.ccadmin.app.system.utility.StringUtil;
-import com.ccadmin.app.transfer.model.constants.TransferConstants;
 import com.ccadmin.app.transfer.model.dto.TransferRequestDetailDto;
 import com.ccadmin.app.transfer.model.dto.TransferSearchDto;
 import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
@@ -37,6 +37,8 @@ public class TransferRequestSearchService extends SessionService {
     private ProductShared productShared;
     @Autowired
     private StoreShared storeShared;
+    @Autowired
+    private WarehouseShared warehouseShared;
 
     public TransferRequestDetailDto findByTransferCod(String transferCod) {
         TransferRequestDetailDto detail = new TransferRequestDetailDto();
@@ -48,40 +50,40 @@ public class TransferRequestSearchService extends SessionService {
                 transferCod
         ).orElse(null);
 
-        detail.transferHeadTe = headTe;
-        detail.transferHeadTs = headTs;
+        detail.transferHeadRequest = headTe;
+        detail.transferHead = headTs;
 
         if (headTe != null) {
-            detail.transferDetTeList = this.transferRequestDetRepository.findByTransferCod(
+            detail.transferDetRequestList = this.transferRequestDetRepository.findByTransferCod(
                     transferCod
             );
         } else {
-            detail.transferDetTeList = new ArrayList<>();
+            detail.transferDetRequestList = new ArrayList<>();
         }
 
         if (headTs != null) {
-            detail.transferDetTsList = this.transferDetRepository.findByTransferCod(
+            detail.transferDetList = this.transferDetRepository.findByTransferCod(
                     transferCod
             );
             detail.transferDocumentList = this.transferDocumentRepository.findByTransferCod(
                     transferCod
             );
         } else {
-            detail.transferDetTsList = new ArrayList<>();
+            detail.transferDetList = new ArrayList<>();
             detail.transferDocumentList = new ArrayList<>();
         }
 
         List<String> productList = new ArrayList<>();
-        detail.transferDetTeList.forEach(det -> productList.add(det.ProductCod));
-        detail.transferDetTsList.forEach(det -> productList.add(det.ProductCod));
+        detail.transferDetRequestList.forEach(det -> productList.add(det.ProductCod));
+        detail.transferDetList.forEach(det -> productList.add(det.ProductCod));
 
         if (!productList.isEmpty()) {
             List<ProductEntity> products = this.productShared.findAllById(productList.stream().distinct().toList());
-            detail.transferDetTeList.forEach(det -> det.Product = products.stream()
+            detail.transferDetRequestList.forEach(det -> det.Product = products.stream()
                     .filter(product -> product.ProductCod.equals(det.ProductCod))
                     .findFirst()
                     .orElse(null));
-            detail.transferDetTsList.forEach(det -> det.Product = products.stream()
+            detail.transferDetList.forEach(det -> det.Product = products.stream()
                     .filter(product -> product.ProductCod.equals(det.ProductCod))
                     .findFirst()
                     .orElse(null));
@@ -97,6 +99,7 @@ public class TransferRequestSearchService extends SessionService {
             rpt.AddResponseAdditional("transferDetail", findByTransferCod(TransferReqCod));
         }
         rpt.AddResponseAdditional("storeList", this.storeShared.findAll());
+        rpt.AddResponseAdditional("warehouseList", this.warehouseShared.findAll());
         return rpt;
     }
 
@@ -105,9 +108,9 @@ public class TransferRequestSearchService extends SessionService {
         TransferRequestDetailDto detail = findByTransferCod(transferCod);
 
         rpt.AddResponseAdditional("transferDetail", detail);
-        if (detail.transferHeadTe != null) {
-            StoreInfoDto storeOrigin = this.storeShared.findStoreInfo(detail.transferHeadTe.StoreCodOrigin);
-            StoreInfoDto storeDest = this.storeShared.findStoreInfo(detail.transferHeadTe.StoreCodDest);
+        if (detail.transferHeadRequest != null) {
+            StoreInfoDto storeOrigin = this.storeShared.findStoreInfo(detail.transferHeadRequest.StoreCodOrigin);
+            StoreInfoDto storeDest = this.storeShared.findStoreInfo(detail.transferHeadRequest.StoreCodDest);
             rpt.AddResponseAdditional("storeOrigin", storeOrigin);
             rpt.AddResponseAdditional("storeDest", storeDest);
         }

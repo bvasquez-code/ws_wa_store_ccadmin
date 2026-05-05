@@ -22,4 +22,9 @@ public class WarehouseShared {
     {
         return this.warehouseService.findByStore(StoreCod);
     }
+
+    public List<WarehouseEntity> findAll()
+    {
+        return this.warehouseService.findAll();
+    }
 }

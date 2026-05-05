@@ -26,8 +26,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.StringTemplate.STR;
-
 @Slf4j
 @Service
 public class CreditNoteCreateService extends SessionService {
@@ -69,7 +67,7 @@ public class CreditNoteCreateService extends SessionService {
     @Transactional
     public CreditNoteDetailDto save(CreditNoteRegisterDto creditNoteRegister) throws SaleException {
 
-        log.info(STR."INI_CREACION_NOTA_CREDITO -->> \{creditNoteRegister.Headboard.CreditNoteCod}");
+        log.info("INI_CREACION_NOTA_CREDITO -->> {}",creditNoteRegister.Headboard.CreditNoteCod);
 
         this.validateCreditNoteRegisterDto(creditNoteRegister);
 
@@ -100,14 +98,14 @@ public class CreditNoteCreateService extends SessionService {
                 this.counterfoilShared.generateDocumentCreditNote(getStoreCod(),"07",creditNoteRegister.Headboard.CreditNoteCod,GroupDocument)
                 : creditNoteRegister.Document;
 
-        log.info(STR."DOCUMENTO_NOTA_CREDITO -->> \{creditNoteDocument.DocumentCod}");
+        log.info("DOCUMENTO_NOTA_CREDITO -->> {}",creditNoteDocument.DocumentCod);
 
         this.creditNoteDetRepository.updateStatusAll(creditNoteRegister.Headboard.CreditNoteCod,"I");
         this.creditNoteHeadRepository.save(creditNoteRegister.Headboard);
         this.creditNoteDetRepository.saveAll(creditNoteRegister.DetailList);
         this.creditNoteDocumentRepository.save(creditNoteDocument);
 
-        log.info(STR."FIN_CREACION_NOTA_CREDITO -->> \{creditNoteRegister.Headboard.CreditNoteCod}");
+        log.info("FIN_CREACION_NOTA_CREDITO -->> {}",creditNoteRegister.Headboard.CreditNoteCod);
 
         return this.creditNoteSearchService.findById(creditNoteRegister.Headboard.CreditNoteCod);
     }
@@ -185,7 +183,7 @@ public class CreditNoteCreateService extends SessionService {
         List<SaleDetEntity> saleDetList = this.saleDetRepository.findBySaleCod(creditNoteRegister.Headboard.SaleCod);
         for(var product : creditNoteRegister.DetailList){
             if(saleDetList.stream().noneMatch(e -> e.ProductCod.equals(product.ProductCod))){
-                throw new SaleException(STR." producto no existe en la compra de origen  \{ product.ProductCod } ");
+                throw new SaleException(" producto no existe en la compra de origen  "+ product.ProductCod);
             }
         }
 

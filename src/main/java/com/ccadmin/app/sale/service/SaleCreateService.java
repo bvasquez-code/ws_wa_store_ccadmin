@@ -153,7 +153,7 @@ public class SaleCreateService extends SessionService {
 
     @Transactional
     public SaleDetailDto confirm(String SaleCod,String DocumentType,String CounterfoilCod) throws SaleException {
-        log.info(STR."INI - CONFIRMACION DE VENTA : \{SaleCod}");
+        log.info("INI - CONFIRMACION DE VENTA : {}",SaleCod);
 
         SaleHeadEntity saleHead = this.saleHeadRepository.findById(SaleCod).get();
         List<SaleDetWarehouseEntity> saleDetWarehouseList = this.saleDetWarehouseRepository.findBySaleCod(SaleCod);
@@ -177,7 +177,7 @@ public class SaleCreateService extends SessionService {
 
         this.rankingProduct(saleDetail);
 
-        log.info(STR."FIN - CONFIRMACION DE VENTA : \{SaleCod}");
+        log.info("FIN - CONFIRMACION DE VENTA : {}",SaleCod);
 
         return saleDetail;
     }

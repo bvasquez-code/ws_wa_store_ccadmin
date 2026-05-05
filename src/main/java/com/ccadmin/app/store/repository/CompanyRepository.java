@@ -6,46 +6,44 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CompanyRepository extends JpaRepository<CompanyEntity, String>,
         CcAdminRepository<CompanyEntity, String> {
 
     @Override
     @Query(value = """
-        select count(1)
-        from company c
-        where c.CompanyCod = :id
-           or c.TaxId = :query
-           or c.LegalName like %:query%
-           or (c.TradeName is not null and c.TradeName like %:query%)
-        """, nativeQuery = true)
+            select count(1)
+            from company c
+            where c.CompanyCod = :id
+               or c.TaxId = :query
+               or c.LegalName like %:query%
+               or (c.TradeName is not null and c.TradeName like %:query%)
+            """, nativeQuery = true)
     int countByQueryText(@Param("id") String id, @Param("query") String query);
 
     @Override
     @Query(value = """
-        select c.*
-        from company c
-        where c.CompanyCod = :id
-           or c.TaxId = :query
-           or c.LegalName like %:query%
-           or (c.TradeName is not null and c.TradeName like %:query%)
-        order by c.CreationDate desc
-        limit :init, :limit
-        """, nativeQuery = true)
+            select c.*
+            from company c
+            where c.CompanyCod = :id
+               or c.TaxId = :query
+               or c.LegalName like %:query%
+               or (c.TradeName is not null and c.TradeName like %:query%)
+            order by c.CreationDate desc
+            limit :init, :limit
+            """, nativeQuery = true)
     List<CompanyEntity> findByQueryText(
             @Param("id") String id,
             @Param("query") String query,
             @Param("init") int init,
-            @Param("limit") int limit
-    );
+            @Param("limit") int limit);
 
     @Query(value = """
-        select c.*
-        from company c
-        where c.Status = 'A'
-        order by c.LegalName asc
-        """, nativeQuery = true)
+            select c.*
+            from company c
+            where c.Status = 'A'
+            order by c.LegalName asc
+            """, nativeQuery = true)
     List<CompanyEntity> findActives();
 
     @Query(value = """

@@ -13,6 +13,7 @@ import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.system.shared.CounterfoilShared;
 import com.ccadmin.app.transfer.exception.TransferException;
 import com.ccadmin.app.transfer.model.constants.TransferConstants;
+import com.ccadmin.app.transfer.model.dto.TransferDetRegisterMassiveDto;
 import com.ccadmin.app.transfer.model.dto.TransferDispatchDto;
 import com.ccadmin.app.transfer.model.dto.TransferReceiveDto;
 import com.ccadmin.app.transfer.model.dto.TransferRegisterBundleDto;
@@ -222,7 +223,7 @@ public class TransferCreateService extends SessionService {
 
             int stockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
             if (stockBefore < det.NumUnitDispatch) {
-                throw new TransferException(STR."Stock insuficiente para el producto \{det.ProductCod}");
+                throw new TransferException("Stock insuficiente para el producto "+det.ProductCod);
             }
 
             KardexEntity kardex = new KardexEntity();
@@ -316,17 +317,24 @@ public class TransferCreateService extends SessionService {
             throw new TransferException("Detalle de transferencia TS no encontrado");
         }
 
-        for(var detRequest : request.detailListReceive){
+        for(var detRequest : request.detailListReceive.stream()
+                .filter( e -> StringUtil.nvl(e.FlgRequested,"S").equals("S") ).toList()){
             detList.stream()
                     .filter(e -> e.ItemNumber == detRequest.ItemNumber)
                     .findFirst()
                     .ifPresent(det -> det.NumUnitReception = detRequest.NumUnitReception);
         }
 
+        for(var detRequest : request.detailListReceive.stream()
+                .filter( e -> StringUtil.nvl(e.FlgRequested,"S").equals("N") ).toList()){
+            detRequest.addSession(getUserCod());
+            detList.add(detRequest);
+        }
+
         List<KardexEntity> kardexList = new ArrayList<>();
 
         List<TransferDetEntity> detListReceive = detList.stream()
-                .filter( e -> e.NumUnitDispatch > 0)
+                .filter( e -> e.NumUnitReception > 0)
                 .toList();
 
         for (var det : detListReceive) {
@@ -348,8 +356,8 @@ public class TransferCreateService extends SessionService {
             kardex.StoreCod = head.StoreCodDest;
             kardex.WarehouseCod = warehouseCodDest;
             kardex.NumStockBefore = stockBefore;
-            kardex.NumStockMoved = det.NumUnitDispatch;
-            kardex.NumStockAfter = stockBefore + det.NumUnitDispatch;
+            kardex.NumStockMoved = det.NumUnitReception;
+            kardex.NumStockAfter = stockBefore + det.NumUnitReception;
             kardex.TypeOperationCod = 6;
             kardex.session(getUserSession(request.user));
             kardexList.add(kardex);
@@ -445,7 +453,7 @@ public class TransferCreateService extends SessionService {
 
             ProductEntity product = this.productShared.findById(det.ProductCod);
             if (product == null || !"A".equals(product.Status)) {
-                throw new TransferException(STR."Producto inválido o inactivo: \{det.ProductCod}");
+                throw new TransferException("Producto inválido o inactivo: "+det.ProductCod);
             }
 
             if (StringUtil.isNotEmpty(det.WarehouseCodOrigin)) {
@@ -493,13 +501,13 @@ public class TransferCreateService extends SessionService {
 
         Map<String, Integer> teQtyByProduct = new HashMap<>();
         for (var det : requestDetList) {
-            String key = STR."\{det.ProductCod}-\{det.Variant}";
+            String key = det.ProductCod+"-"+det.Variant;
             teQtyByProduct.put(key, teQtyByProduct.getOrDefault(key, 0) + det.NumUnit);
         }
 
         Map<String, Integer> tsQtyByProduct = new HashMap<>();
         for (var det : detList) {
-            String key = STR."\{det.ProductCod}-\{det.Variant}";
+            String key = det.ProductCod+"-"+det.Variant;
             tsQtyByProduct.put(key, tsQtyByProduct.getOrDefault(key, 0) + det.NumUnit);
         }
 
@@ -562,5 +570,26 @@ public class TransferCreateService extends SessionService {
 
     private String getUserSession(String user) {
         return StringUtil.isEmpty(user) ? getUserCod() : user;
+    }
+
+    public TransferDetRegisterMassiveDto saveDet(TransferDetRegisterMassiveDto transferDetRegisterMassiveDto) throws TransferException {
+
+        TransferDetEntity transferDet = transferDetRegisterMassiveDto.transferDetList.getFirst();
+
+        TransferHeadEntity transferHead = this.transferHeadRepository.findById(transferDet.TransferCod).orElse(null);
+
+        if(transferHead == null){
+            throw new TransferException("Transferencia no encontrada");
+        }
+
+        if(transferHead.TransferStatus.equals(TransferConstants.STATUS_CONFIRMED)
+                && transferHead.ReceiveStatus.equals(TransferConstants.STATUS_CONFIRMED)){
+            throw new TransferException("Transferencia ya se encuentra completamente cerrada.");
+        }
+
+        for(var item : transferDetRegisterMassiveDto.transferDetList){
+            item.addSession(getUserCod());
+        }
+        return new TransferDetRegisterMassiveDto(this.transferDetRepository.saveAll(transferDetRegisterMassiveDto.transferDetList));
     }
 }

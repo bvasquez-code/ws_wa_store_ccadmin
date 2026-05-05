@@ -92,14 +92,14 @@ public final class NumberUtil {
         if (n instanceof Float) {
             float f = (Float) n;
             if (Float.isNaN(f) || Float.isInfinite(f)) {
-                throw new IllegalArgumentException(STR."Float no finito: \{f}");
+                throw new IllegalArgumentException("Float no finito: "+f);
             }
             return BigDecimal.valueOf(f);
         }
         if (n instanceof Double) {
             double d = (Double) n;
             if (Double.isNaN(d) || Double.isInfinite(d)) {
-                throw new IllegalArgumentException(STR."Double no finito: \{d}");
+                throw new IllegalArgumentException("Double no finito: "+d);
             }
             return BigDecimal.valueOf(d);
         }
@@ -110,7 +110,7 @@ public final class NumberUtil {
             return new BigDecimal(s);
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException(
-                    STR."Tipo Number no soportado o formato inválido: \{n.getClass().getName()} -> \{s}", ex);
+                    "Tipo Number no soportado o formato inválido: "+n.getClass().getName()+" -> "+s, ex);
         }
     }
 }

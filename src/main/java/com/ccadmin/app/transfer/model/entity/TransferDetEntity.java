@@ -32,6 +32,7 @@ public class TransferDetEntity extends AuditTableEntity implements Serializable 
     public int NumUnit;
     public int NumUnitDispatch;
     public int NumUnitReception;
+    public String FlgRequested;
     public String LotNumber;
     public java.util.Date ExpirationDate;
 

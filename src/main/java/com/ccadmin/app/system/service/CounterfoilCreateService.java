@@ -35,7 +35,7 @@ public class CounterfoilCreateService extends SessionService {
 
         int Correlative = 1000000 + counterfoil.Correlative;
 
-        saleDocument.DocumentCod = STR."\{counterfoil.Series}-\{String.valueOf(Correlative).substring(1, 7)}";
+        saleDocument.DocumentCod = counterfoil.Series+"-"+String.valueOf(Correlative).substring(1, 7);
         saleDocument.CounterfoilCod = counterfoil.CounterfoilCod;
         saleDocument.SaleCod = SaleCod;
         saleDocument.addSession(getUserCod());
@@ -52,7 +52,7 @@ public class CounterfoilCreateService extends SessionService {
 
         int Correlative = 1000000 + counterfoil.Correlative;
 
-        creditNoteDocument.DocumentCod = STR."\{counterfoil.Series}-\{String.valueOf(Correlative).substring(1, 7)}";
+        creditNoteDocument.DocumentCod = counterfoil.Series+"-"+String.valueOf(Correlative).substring(1, 7);
         creditNoteDocument.CounterfoilCod = counterfoil.CounterfoilCod;
         creditNoteDocument.CreditNoteCod = CreditNoteCod;
         creditNoteDocument.addSession(getUserCod());
@@ -65,7 +65,7 @@ public class CounterfoilCreateService extends SessionService {
         CounterfoilEntity counterfoil = this.counterfoilRepository.findByStoreDefault(DocumentType,StoreCod);
 
         if(counterfoil == null){
-            throw new RuntimeException(STR."No existe talonario automático para documento \{DocumentType} y local \{StoreCod}");
+            throw new RuntimeException("No existe talonario automático para documento "+DocumentType+" y local "+StoreCod);
         }
 
         counterfoil.Correlative = counterfoil.Correlative + 1;
@@ -73,7 +73,7 @@ public class CounterfoilCreateService extends SessionService {
 
         int Correlative = 1000000 + counterfoil.Correlative;
 
-        transferDocument.DocumentCod = STR."\{counterfoil.Series}-\{String.valueOf(Correlative).substring(1, 7)}";
+        transferDocument.DocumentCod = counterfoil.Series+"-"+String.valueOf(Correlative).substring(1, 7);
         transferDocument.CounterfoilCod = counterfoil.CounterfoilCod;
         transferDocument.TransferCod = TransferCod;
         transferDocument.addSession(getUserCod());
@@ -89,7 +89,7 @@ public class CounterfoilCreateService extends SessionService {
         boolean existeCounterfoil = this.counterfoilRepository.existsById(request.counterfoil.CounterfoilCod);
 
         if(!existeCounterfoil && repeatedSeries){
-            throw new RuntimeException(STR."Serie ya existe : \{request.counterfoil.Series}");
+            throw new RuntimeException("Serie ya existe : "+request.counterfoil.Series);
         }
 
         return new CounterfoilRegisterDto(

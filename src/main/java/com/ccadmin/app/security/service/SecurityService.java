@@ -5,7 +5,6 @@ import com.ccadmin.app.security.model.entity.AppSessionEntity;
 import com.ccadmin.app.security.model.entity.AppUserEntity;
 import com.ccadmin.app.security.repository.AppSessionRepository;
 import com.ccadmin.app.security.repository.AppUserRepository;
-import com.ccadmin.app.security.repository.ProfileMenuRepository;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.user.shared.AppMenuShared;
 import jakarta.transaction.Transactional;
@@ -30,8 +29,8 @@ public class SecurityService extends SessionService {
         AppSessionEntity appSession = this.appSessionRepository.findSessionEnd(sessionStorage.UserCod);
         AppUserEntity appUser = this.appUserRepository.findById(getUserCod()).get();
 
-        this.appSessionRepository.saveHistory(getUserCod(),appSession.SessionID);
-        this.appSessionRepository.cleanSession(sessionStorage.UserCod,appSession.SessionID);
+        this.appSessionRepository.saveHistory(getUserCod(), appSession.SessionID);
+        this.appSessionRepository.cleanSession(sessionStorage.UserCod, appSession.SessionID);
 
         sessionStorage.SessionID = appSession.SessionID;
         sessionStorage.Token = appSession.Token;

@@ -1,6 +1,5 @@
 package com.ccadmin.app.system.controller;
 
-import com.ccadmin.app.sale.model.dto.PresaleRegisterDto;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.system.model.dto.AppFileDto;
 import com.ccadmin.app.system.service.AppFileService;

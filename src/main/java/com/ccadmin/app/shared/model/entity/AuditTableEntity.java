@@ -1,8 +1,6 @@
 package com.ccadmin.app.shared.model.entity;
 
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.MappedSuperclass;
-import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass

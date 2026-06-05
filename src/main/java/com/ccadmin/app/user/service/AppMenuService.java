@@ -5,7 +5,6 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
 import com.ccadmin.app.shared.service.SearchService;
 import com.ccadmin.app.shared.service.SessionService;
-import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.user.model.dto.AppMenuStructureDto;
 import com.ccadmin.app.user.model.entity.AppMenuEntity;
 import com.ccadmin.app.user.repository.AppMenuRepository;
@@ -90,5 +89,9 @@ public class AppMenuService extends SessionService {
 
     public List<AppMenuEntity> findByUser(String UserCod){
         return this.appMenuRepository.findByUser(UserCod);
+    }
+
+    public AppMenuEntity findById(String MenuCod){
+        return this.appMenuRepository.findById(MenuCod).orElse(null);
     }
 }

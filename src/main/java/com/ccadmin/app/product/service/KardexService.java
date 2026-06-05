@@ -18,7 +18,7 @@ import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
 import com.ccadmin.app.shared.model.entity.BusinessConfigEntity;
 import com.ccadmin.app.shared.model.entity.id.BusinessConfigEntityID;
-import com.ccadmin.app.shared.service.BusinessConfigService;
+import com.ccadmin.app.shared.service.BusinessConfigSearchService;
 import com.ccadmin.app.shared.service.SearchService;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.store.model.entity.StoreEntity;
@@ -53,7 +53,7 @@ public class KardexService extends SessionService {
     private PucharseHeadShared pucharseHeadShared;
 
     @Autowired
-    private BusinessConfigService businessConfigService;
+    private BusinessConfigSearchService businessConfigSearchService;
     private SearchService searchService;
 
     @Transactional
@@ -200,7 +200,7 @@ public class KardexService extends SessionService {
                 .map(configCorr -> new BusinessConfigEntityID("OperationKardex", configCorr))
                 .toList();
 
-        List<BusinessConfigEntity> TypeOperationList = this.businessConfigService.findAllById(TypeOperationCodList);
+        List<BusinessConfigEntity> TypeOperationList = this.businessConfigSearchService.findAllById(TypeOperationCodList);
 
         List<KardexDto> kardexDtoList = new ArrayList<>();
 

@@ -1,6 +1,5 @@
 package com.ccadmin.app.user.controller;
 
-import com.ccadmin.app.product.model.dto.ProductRegisterDto;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.user.model.entity.AppMenuEntity;
 import com.ccadmin.app.user.service.AppMenuService;
@@ -67,6 +66,21 @@ public class AppMenuController {
         try{
             return new ResponseEntity<ResponseWsDto>(
                     new ResponseWsDto(this.appMenuService.updateStatus(appMenu))
+                    , HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("findById")
+    public ResponseEntity<ResponseWsDto> findById(@RequestParam String MenuCod)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto(this.appMenuService.findById(MenuCod))
                     , HttpStatus.OK
             );
         }

@@ -3,7 +3,7 @@ package com.ccadmin.app.system.service;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.entity.BusinessConfigEntity;
 import com.ccadmin.app.shared.model.entity.id.BusinessConfigEntityID;
-import com.ccadmin.app.shared.service.BusinessConfigService;
+import com.ccadmin.app.shared.service.BusinessConfigSearchService;
 import com.ccadmin.app.shared.service.SessionService;
 import com.ccadmin.app.system.model.dto.AppFileDto;
 import com.ccadmin.app.system.model.entity.AppFileEntity;
@@ -26,7 +26,7 @@ public class AppFileService extends SessionService {
     @Autowired
     private AppFileRepository appFileRepository;
     @Autowired
-    BusinessConfigService businessConfigService;
+    BusinessConfigSearchService businessConfigSearchService;
 
     public AppFileEntity findById(String FileCod)
     {
@@ -38,10 +38,10 @@ public class AppFileService extends SessionService {
         try{
             AppFileEntity appFile = new AppFileEntity();
 
-            BusinessConfigEntity physicalRoute = this.businessConfigService.findById(
+            BusinessConfigEntity physicalRoute = this.businessConfigSearchService.findById(
                     new BusinessConfigEntityID("ConfigurationFiles",1)
             );
-            BusinessConfigEntity hostRoute = this.businessConfigService.findById(
+            BusinessConfigEntity hostRoute = this.businessConfigSearchService.findById(
                     new BusinessConfigEntityID("ConfigurationFiles",2)
             );
 

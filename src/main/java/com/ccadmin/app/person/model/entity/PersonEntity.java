@@ -18,6 +18,9 @@ public class PersonEntity extends AuditTableEntity implements Serializable {
     public String DocumentNum;
     public String Names;
     public String LastNames;
+    public String CommercialName;
+    public String BusinessName;
+    public String Address;
     public String UbigeoCod;
     public String Phone;
     public String CellPhone;

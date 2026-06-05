@@ -201,4 +201,15 @@ public class SaleCreateService extends SessionService {
 
         return kardexList;
     }
+
+
+    public SaleHeadEntity saveClientSale(String SaleCod, String ClientCod) throws SaleException {
+        SaleHeadEntity saleHead = this.saleHeadRepository.findById(SaleCod).get();
+        if(saleHead == null){
+            throw new SaleException("No existe la venta.");
+        }
+        saleHead.ClientCod = ClientCod;
+        saleHead.addSession(getUserCod());
+        return this.saleHeadRepository.save(saleHead);
+    }
 }

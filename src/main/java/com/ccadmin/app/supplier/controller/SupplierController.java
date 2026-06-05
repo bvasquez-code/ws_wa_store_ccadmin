@@ -1,26 +1,26 @@
-package com.ccadmin.app.client.controller;
+package com.ccadmin.app.supplier.controller;
 
-import com.ccadmin.app.client.model.entity.ClientEntity;
-import com.ccadmin.app.client.service.ClientService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
+import com.ccadmin.app.supplier.model.entity.SupplierEntity;
+import com.ccadmin.app.supplier.service.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/client")
-public class ClientController {
+@RequestMapping("api/v1/supplier")
+public class SupplierController {
 
     @Autowired
-    private ClientService clientService;
+    private SupplierService supplierService;
 
     @GetMapping("findByDocumentNum")
     public ResponseEntity<ResponseWsDto> findByDocumentNum(@RequestParam String DocumentType,String DocumentNum)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.clientService.findByDocumentNum(DocumentType,DocumentNum))
+                    new ResponseWsDto(this.supplierService.findByDocumentNum(DocumentType,DocumentNum))
                     , HttpStatus.OK
             );
         }
@@ -31,11 +31,11 @@ public class ClientController {
     }
 
     @PostMapping("save")
-    public ResponseEntity<ResponseWsDto> save(@RequestBody ClientEntity Client)
+    public ResponseEntity<ResponseWsDto> save(@RequestBody SupplierEntity Supplier)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.clientService.save(Client))
+                    new ResponseWsDto(this.supplierService.save(Supplier))
                     ,HttpStatus.OK
             );
         }
@@ -50,7 +50,7 @@ public class ClientController {
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    new ResponseWsDto(this.clientService.findAll(Query,Page))
+                    new ResponseWsDto(this.supplierService.findAll(Query,Page))
                     , HttpStatus.OK
             );
         }
@@ -61,11 +61,11 @@ public class ClientController {
     }
 
     @GetMapping("findDataForm")
-    public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam String ClientCod)
+    public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam String SupplierCod)
     {
         try{
             return new ResponseEntity<ResponseWsDto>(
-                    this.clientService.findDataForm(ClientCod)
+                    this.supplierService.findDataForm(SupplierCod)
                     , HttpStatus.OK
             );
         }
@@ -74,6 +74,4 @@ public class ClientController {
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }

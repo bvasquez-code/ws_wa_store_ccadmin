@@ -1,7 +1,6 @@
 package com.ccadmin.app.pucharse.controller;
 
 import com.ccadmin.app.pucharse.model.dto.PucharseDetConfirmDto;
-import com.ccadmin.app.pucharse.model.dto.PucharseRegisterDto;
 import com.ccadmin.app.pucharse.service.PucharseDetService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import org.apache.logging.log4j.LogManager;

@@ -20,4 +20,20 @@ public class CurrencyEntity extends AuditTableEntity implements Serializable {
     public String CurrencyDesc;
     public String IsCurrencySystem;
     public BigDecimal NumExchangevalue;
+
+    public CurrencyEntity validate() {
+        if (CurrencyCod == null || CurrencyCod.isBlank()) {
+            throw new IllegalArgumentException("CurrencyCod requerido");
+        }
+        if (NumExchangevalue != null && NumExchangevalue.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("NumExchangevalue no debe ser negativo");
+        }
+        return this;
+    }
+
+    @Override
+    public CurrencyEntity session(String userCod) {
+        this.addSession(userCod);
+        return this;
+    }
 }

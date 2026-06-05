@@ -1,7 +1,6 @@
 package com.ccadmin.app.sale.controller;
 
 import com.ccadmin.app.sale.model.dto.CreditNoteRegisterDto;
-import com.ccadmin.app.sale.model.dto.PresaleRegisterDto;
 import com.ccadmin.app.sale.service.CreditNoteCreateService;
 import com.ccadmin.app.sale.service.CreditNoteSearchService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;

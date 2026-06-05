@@ -1,6 +1,8 @@
 package com.ccadmin.app.sale.controller;
 
+import com.ccadmin.app.sale.exception.SaleException;
 import com.ccadmin.app.sale.model.dto.SalePaymentRegisterDto;
+import com.ccadmin.app.sale.service.SaleCreateService;
 import com.ccadmin.app.sale.service.SalePaymentCreateService;
 import com.ccadmin.app.sale.service.SaleSearchService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
@@ -20,6 +22,8 @@ public class SaleController {
     private SalePaymentCreateService salePaymentCreateService;
     @Autowired
     private SaleSearchService saleSearchService;
+    @Autowired
+    private SaleCreateService saleCreateService;
 
     @PostMapping("addPayment")
     public ResponseEntity<ResponseWsDto> addPayment(@RequestBody SalePaymentRegisterDto salePayment)
@@ -112,5 +116,17 @@ public class SaleController {
         }
     }
 
+    @PostMapping("saveClientSale")
+    public ResponseEntity<ResponseWsDto> saveClientSale(@RequestParam String SaleCod, @RequestParam String ClientCod) throws SaleException {
+        try {
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto().okResponse(this.saleCreateService.saveClientSale(SaleCod, ClientCod))
+                    , HttpStatus.OK
+            );
+        } catch (Exception ex) {
+            log.error("Error :{}", ex.getMessage(), ex);
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

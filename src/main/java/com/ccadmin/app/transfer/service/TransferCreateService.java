@@ -17,9 +17,11 @@ import com.ccadmin.app.transfer.model.dto.TransferDetRegisterMassiveDto;
 import com.ccadmin.app.transfer.model.dto.TransferDispatchDto;
 import com.ccadmin.app.transfer.model.dto.TransferReceiveDto;
 import com.ccadmin.app.transfer.model.dto.TransferRegisterBundleDto;
+import com.ccadmin.app.transfer.model.entity.CarrierEntity;
 import com.ccadmin.app.transfer.model.entity.TransferDetEntity;
 import com.ccadmin.app.transfer.model.entity.TransferDocumentEntity;
 import com.ccadmin.app.transfer.model.entity.TransferHeadEntity;
+import com.ccadmin.app.transfer.repository.CarrierRepository;
 import com.ccadmin.app.transfer.repository.TransferDetRepository;
 import com.ccadmin.app.transfer.repository.TransferDocumentRepository;
 import com.ccadmin.app.transfer.repository.TransferHeadRepository;
@@ -39,6 +41,8 @@ public class TransferCreateService extends SessionService {
     private TransferDetRepository transferDetRepository;
     @Autowired
     private TransferDocumentRepository transferDocumentRepository;
+    @Autowired
+    private CarrierRepository carrierRepository;
     @Autowired
     private ProductShared productShared;
     @Autowired
@@ -275,6 +279,16 @@ public class TransferCreateService extends SessionService {
 
         transferDocument.validate().session(getUserSession(request.user));
 
+        CarrierEntity carrier = new CarrierEntity();
+        carrier.CarrierCod = request.driverDocNumber;
+        carrier.CarrierRuc = request.carrierRuc;
+        carrier.CarrierName = request.carrierName;
+        carrier.VehiclePlate = request.vehiclePlate;
+        carrier.DriverDocType = request.driverDocType;
+        carrier.DriverDocNumber = request.driverDocNumber;
+        carrier.DriverLicenseNumber = request.driverLicenseNumber;
+        carrier.addSession(getUserCod());
+        
         Date now = new Date();
         head.DispatchDate = now;
         head.UserOriginConfirm = getUserSession(request.user);
@@ -289,6 +303,7 @@ public class TransferCreateService extends SessionService {
         this.transferDetRepository.saveAll(detList);
         this.kardexShared.saveAll(kardexList);
         this.transferDocumentRepository.save(transferDocument);
+        this.carrierRepository.save(carrier);
 
         return new ResponseWsDto("Transferencia despachada correctamente");
     }
@@ -590,6 +605,13 @@ public class TransferCreateService extends SessionService {
         for(var item : transferDetRegisterMassiveDto.transferDetList){
             item.addSession(getUserCod());
         }
-        return new TransferDetRegisterMassiveDto(this.transferDetRepository.saveAll(transferDetRegisterMassiveDto.transferDetList));
+
+        List<TransferDetEntity> transferDetListDB = this.transferDetRepository.saveAll(transferDetRegisterMassiveDto.transferDetList);
+
+        transferDetListDB.stream().forEach(e -> {
+            e.Product = this.productShared.findById(e.ProductCod);
+        });
+
+        return new TransferDetRegisterMassiveDto(transferDetListDB);
     }
 }

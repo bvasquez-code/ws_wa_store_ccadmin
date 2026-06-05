@@ -24,7 +24,7 @@ public interface PucharseHeadRepository extends JpaRepository<PucharseHeadEntity
     @Query(value = """
             SELECT count(1) FROM pucharse_head ph
             where ph.StoreCod = :storeCod
-            and ph.PucharseCod = :id or concat(ph.PucharseCod,ph.ExternalCod,ph.DealerCod) like %:query%
+            and (ph.PucharseCod = :id or concat(ph.PucharseCod,ph.ExternalCod,ph.DealerCod) like %:query%)
             """, nativeQuery = true)
     public int countByQueryTextStore(
             @Param("id") String id,
@@ -36,7 +36,7 @@ public interface PucharseHeadRepository extends JpaRepository<PucharseHeadEntity
     @Query(value = """
             SELECT ph.* FROM pucharse_head ph
             where ph.StoreCod = :storeCod
-            and ph.PucharseCod = :id or concat(ph.PucharseCod,ph.ExternalCod,ph.DealerCod) like %:query%
+            and (ph.PucharseCod = :id or concat(ph.PucharseCod,ph.ExternalCod,ph.DealerCod) like %:query%)
             order by ph.PucharseCod desc
             limit :init,:limit
             """, nativeQuery = true)

@@ -17,4 +17,17 @@ public class PaymentMethodEntity extends AuditTableEntity implements Serializabl
     public String Description;
     public String PaymentMethodType;
 
+    public PaymentMethodEntity validate() {
+        if (PaymentMethodCod == null || PaymentMethodCod.isBlank()) {
+            throw new IllegalArgumentException("PaymentMethodCod requerido");
+        }
+        return this;
+    }
+
+    @Override
+    public PaymentMethodEntity session(String userCod) {
+        this.addSession(userCod);
+        return this;
+    }
+
 }

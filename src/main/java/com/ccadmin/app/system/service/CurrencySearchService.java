@@ -18,6 +18,7 @@ public class CurrencySearchService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
+
     private SearchTService<CurrencyEntity> searchTService;
 
     @Autowired

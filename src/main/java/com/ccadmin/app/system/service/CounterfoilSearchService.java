@@ -3,9 +3,9 @@ package com.ccadmin.app.system.service;
 import com.ccadmin.app.shared.model.dto.ResponsePageSearchT;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
 import com.ccadmin.app.shared.model.dto.SearchDto;
-import com.ccadmin.app.shared.service.BusinessConfigSearchService;
 import com.ccadmin.app.shared.service.SearchTService;
 import com.ccadmin.app.shared.service.SessionService;
+import com.ccadmin.app.shared.shared.CatalogSearchShared;
 import com.ccadmin.app.store.model.entity.StoreEntity;
 import com.ccadmin.app.store.shared.StoreShared;
 import com.ccadmin.app.system.model.dto.DocumentTypeDto;
@@ -26,7 +26,7 @@ public class CounterfoilSearchService extends SessionService {
     @Autowired
     private CounterfoilStoreRepository counterfoilStoreRepository;
     @Autowired
-    private BusinessConfigSearchService businessConfigSearchService;
+    private CatalogSearchShared catalogSearchShared;
     @Autowired
     private StoreShared storeShared;
 
@@ -66,7 +66,7 @@ public class CounterfoilSearchService extends SessionService {
                     counterfoilStoreRepository.findStoresByCounterfoil(counterfoilCod)
             );
         }
-        List<DocumentTypeDto> documentType = businessConfigSearchService.getSaleDocumentType();
+        List<DocumentTypeDto> documentType = catalogSearchShared.getSaleDocumentType();
         rpt.AddResponseAdditional("documentType",documentType);
         StoreEntity store = this.storeShared.findById(getStoreCod());
         rpt.AddResponseAdditional("store",store);

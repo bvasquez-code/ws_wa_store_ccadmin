@@ -120,13 +120,18 @@ public class PresaleCreateService extends SessionService {
     }
 
     public List<PresaleDetEntity> recalculateAmountPresaleDet(PresaleRegisterDto presaleRegister) throws PresaleBuildException {
+        int itemNumber = 1;
         for(var product : presaleRegister.DetailList)
         {
             product.PresaleCod = presaleRegister.Headboard.PresaleCod;
+            if (product.ItemNumber <= 0) {
+                product.ItemNumber = itemNumber;
+            }
             product.NumUnitPriceSale = product.NumUnitPrice.subtract( product.NumDiscount );
             product.NumTotalPrice = product.NumUnitPriceSale.multiply(new BigDecimal(product.NumUnit));
             product.addSession(getUserCod());
             product.validate();
+            itemNumber++;
         }
         return presaleRegister.DetailList;
     }
@@ -142,9 +147,7 @@ public class PresaleCreateService extends SessionService {
             Optional<PresaleDetWarehouseEntity> detWarehouseOp = this.presaleDetWarehouseRepository.findById(
                     new PresaleDetWarehouseID(
                             product.PresaleCod,
-                            product.ProductCod,
-                            product.Variant,
-                            warehouseDefault.WarehouseCod
+                            product.ItemNumber
                     )
             );
 

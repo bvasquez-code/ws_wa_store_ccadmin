@@ -18,9 +18,9 @@ public class KardexShared {
         return this.kardexService.save(kardex);
     }
 
-    public KardexEntity findLastMovement(String ProductCod,String WarehouseCod,String StoreCod)
+    public KardexEntity findLastMovement(String ProductCod,String Variant,String WarehouseCod,String StoreCod)
     {
-        return this.kardexService.findLastMovement(ProductCod,WarehouseCod,StoreCod);
+        return this.kardexService.findLastMovement(ProductCod,Variant,WarehouseCod,StoreCod);
     }
 
     public List<KardexEntity> saveAll(List<KardexEntity> kardexList)

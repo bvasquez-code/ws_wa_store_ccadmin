@@ -19,11 +19,8 @@ public class TransferDetEntity extends AuditTableEntity implements Serializable 
 
     @Id
     public String TransferCod;
-    @Id
     public String TypeOperation;
-    @Id
     public String ProductCod;
-    @Id
     public String Variant;
     @Id
     public int ItemNumber;

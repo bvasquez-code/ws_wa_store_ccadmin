@@ -8,6 +8,7 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table( name = "pucharse_det_delivery")
@@ -17,10 +18,11 @@ public class PucharseDetDeliveryEntity extends AuditTableEntity implements Seria
     @Id
     public String PucharseCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
-    @Id
     public String Variant;
-    @Id
     public String WarehouseCod;
     public int NumUnit;
+    public String LotNumber;
+    public Date ExpirationDate;
 }

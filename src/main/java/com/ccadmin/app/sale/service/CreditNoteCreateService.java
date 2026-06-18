@@ -24,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -75,11 +77,16 @@ public class CreditNoteCreateService extends SessionService {
 
         SaleDocumentEntity saleDocument = this.saleDocumentRepository.findBySaleCod(saleHead.SaleCod);
 
-        creditNoteRegister.DetailList.forEach( product -> {
+        int itemNumber = 1;
+        for (var product : creditNoteRegister.DetailList) {
             product.CreditNoteCod = creditNoteRegister.Headboard.CreditNoteCod;
+            if (product.ItemNumber <= 0) {
+                product.ItemNumber = itemNumber;
+            }
             product.NumTotalPrice = product.NumUnitPriceSale.multiply(BigDecimal.valueOf(product.NumUnit));
             product.validate().session(getUserCod());
-        });
+            itemNumber++;
+        }
 
         creditNoteRegister.Headboard.NumTotalPrice = creditNoteRegister.DetailList
                 .stream()
@@ -147,19 +154,28 @@ public class CreditNoteCreateService extends SessionService {
                 .map( e -> {
                    return new CreditNoteDetWarehouseEntity(
                             e.CreditNoteCod
+                           ,e.ItemNumber
                            ,e.ProductCod
                            ,e.Variant
                            ,warehouseDefault.WarehouseCod
                            ,e.NumUnitStockReturned
+                           ,e.LotNumber
+                           ,e.ExpirationDate
                    ).session(getUserCod());
                 }).toList();
 
         List<KardexEntity> KardexList = new ArrayList<>();
+        Map<String, KardexEntity> lastMovementByStock = new HashMap<>();
         for(var item : creditNoteDetWarehouseList){
-            KardexEntity kardexLast = this.kardexShared.findLastMovement(item.ProductCod,item.WarehouseCod,warehouseDefault.StoreCod);
+            String key = this.stockKey(item.ProductCod, item.Variant, warehouseDefault.StoreCod, item.WarehouseCod);
+            KardexEntity kardexLast = lastMovementByStock.computeIfAbsent(
+                    key,
+                    ignored -> this.kardexShared.findLastMovement(item.ProductCod,item.Variant,item.WarehouseCod,warehouseDefault.StoreCod)
+            );
             KardexEntity kardexNoteDetWarehouse = new KardexEntity(kardexLast,item,warehouseDefault.StoreCod);
             kardexNoteDetWarehouse.addSession(getUserCod());
             KardexList.add(kardexNoteDetWarehouse);
+            lastMovementByStock.put(key, kardexNoteDetWarehouse);
         }
 
         this.creditNoteDetRepository.saveAll(creditNoteRegister.DetailList);
@@ -182,7 +198,9 @@ public class CreditNoteCreateService extends SessionService {
         }
         List<SaleDetEntity> saleDetList = this.saleDetRepository.findBySaleCod(creditNoteRegister.Headboard.SaleCod);
         for(var product : creditNoteRegister.DetailList){
-            if(saleDetList.stream().noneMatch(e -> e.ProductCod.equals(product.ProductCod))){
+            if(saleDetList.stream().noneMatch(e -> e.ItemNumber == product.ItemNumber
+                    && e.ProductCod.equals(product.ProductCod)
+                    && e.Variant.equals(product.Variant))){
                 throw new SaleException(" producto no existe en la compra de origen  "+ product.ProductCod);
             }
         }
@@ -193,5 +211,9 @@ public class CreditNoteCreateService extends SessionService {
                 throw new SaleException("Venta ya tiene asociada una nota de crédito");
             }
         }
+    }
+
+    private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {
+        return productCod + "|" + variant + "|" + storeCod + "|" + warehouseCod;
     }
 }

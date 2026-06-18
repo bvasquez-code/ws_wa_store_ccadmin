@@ -74,8 +74,8 @@ public class KardexService extends SessionService {
         return kardexList;
     }
 
-    public KardexEntity findLastMovement(String ProductCod, String WarehouseCod, String StoreCod) {
-        return this.kardexRepository.findLastMovement(ProductCod, WarehouseCod, StoreCod);
+    public KardexEntity findLastMovement(String ProductCod, String Variant, String WarehouseCod, String StoreCod) {
+        return this.kardexRepository.findLastMovement(ProductCod, Variant, WarehouseCod, StoreCod);
     }
 
     private void saveInfoProduct(KardexEntity kardex) {
@@ -149,7 +149,7 @@ public class KardexService extends SessionService {
                     productInfoWarehouse.Variant, productInfoWarehouse.WarehouseCod);
 
             KardexEntity kardex = this.kardexRepository.findLastMovement(
-                    productInfoWarehouse.ProductCod, productInfoWarehouse.WarehouseCod, store.StoreCod);
+                    productInfoWarehouse.ProductCod, productInfoWarehouse.Variant, productInfoWarehouse.WarehouseCod, store.StoreCod);
             log.info("STOCK IN kardex : {}", kardex.NumStockAfter);
             log.info("STOCK IN productInfoWarehouse : {}", productInfoWarehouse.NumDigitalStock);
 

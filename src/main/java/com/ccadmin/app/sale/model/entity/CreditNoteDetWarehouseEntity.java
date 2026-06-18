@@ -8,6 +8,7 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "credit_note_det_warehouse")
@@ -18,25 +19,30 @@ public class CreditNoteDetWarehouseEntity extends AuditTableEntity implements Se
     public String CreditNoteCod;
 
     @Id
+    public int ItemNumber;
+
     public String ProductCod;
 
-    @Id
     public String Variant;
 
-    @Id
     public String WarehouseCod;
 
     public Integer NumUnit;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     public CreditNoteDetWarehouseEntity() {
     }
 
-    public CreditNoteDetWarehouseEntity(String creditNoteCod, String productCod, String variant, String warehouseCod, Integer numUnit) {
+    public CreditNoteDetWarehouseEntity(String creditNoteCod, int itemNumber, String productCod, String variant, String warehouseCod, Integer numUnit, String lotNumber, Date expirationDate) {
         CreditNoteCod = creditNoteCod;
+        ItemNumber = itemNumber;
         ProductCod = productCod;
         Variant = variant;
         WarehouseCod = warehouseCod;
         NumUnit = numUnit;
+        LotNumber = lotNumber;
+        ExpirationDate = expirationDate;
     }
 
     /**

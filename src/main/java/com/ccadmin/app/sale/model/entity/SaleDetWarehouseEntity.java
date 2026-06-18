@@ -9,6 +9,7 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table( name = "sale_det_warehouse")
@@ -17,12 +18,13 @@ public class SaleDetWarehouseEntity extends AuditTableEntity implements Serializ
     @Id
     public String SaleCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
-    @Id
     public String Variant;
-    @Id
     public String WarehouseCod;
     public int NumUnit;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     public SaleDetWarehouseEntity()
     {
@@ -32,19 +34,25 @@ public class SaleDetWarehouseEntity extends AuditTableEntity implements Serializ
     public SaleDetWarehouseEntity(PresaleDetWarehouseEntity detWarehouse,String SaleCod)
     {
         this.SaleCod = SaleCod;
+        this.ItemNumber = detWarehouse.ItemNumber;
         this.ProductCod = detWarehouse.ProductCod;
         this.Variant = detWarehouse.Variant;
         this.WarehouseCod = detWarehouse.WarehouseCod;
         this.NumUnit = detWarehouse.NumUnit;
+        this.LotNumber = detWarehouse.LotNumber;
+        this.ExpirationDate = detWarehouse.ExpirationDate;
     }
 
     public SaleDetWarehouseEntity build(PresaleDetWarehouseEntity detWarehouse,String SaleCod)
     {
         this.SaleCod = SaleCod;
+        this.ItemNumber = detWarehouse.ItemNumber;
         this.ProductCod = detWarehouse.ProductCod;
         this.Variant = detWarehouse.Variant;
         this.WarehouseCod = detWarehouse.WarehouseCod;
         this.NumUnit = detWarehouse.NumUnit;
+        this.LotNumber = detWarehouse.LotNumber;
+        this.ExpirationDate = detWarehouse.ExpirationDate;
         return this;
     }
     public SaleDetWarehouseEntity validate() throws SaleBuildException {

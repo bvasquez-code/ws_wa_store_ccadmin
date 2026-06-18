@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -190,16 +192,25 @@ public class SaleCreateService extends SessionService {
     }
 
     private List<KardexEntity> createkardexList(List<SaleDetWarehouseEntity> saleDetWarehouseList,SaleHeadEntity saleHead){
-        List<KardexEntity> kardexList = saleDetWarehouseList
-                .stream()
-                .map( e-> {
-                    KardexEntity kardexLast = this.kardexShared.findLastMovement(e.ProductCod,e.WarehouseCod,saleHead.StoreCod);
-                    return new KardexEntity(kardexLast,e,saleHead.StoreCod)
-                            .session(getUserCod());
-                })
-                .toList();
+        List<KardexEntity> kardexList = new ArrayList<>();
+        Map<String, KardexEntity> lastMovementByStock = new HashMap<>();
 
+        for (var item : saleDetWarehouseList) {
+            String key = this.stockKey(item.ProductCod, item.Variant, saleHead.StoreCod, item.WarehouseCod);
+            KardexEntity kardexLast = lastMovementByStock.computeIfAbsent(
+                    key,
+                    ignored -> this.kardexShared.findLastMovement(item.ProductCod,item.Variant,item.WarehouseCod,saleHead.StoreCod)
+            );
+            KardexEntity kardex = new KardexEntity(kardexLast,item,saleHead.StoreCod)
+                    .session(getUserCod());
+            kardexList.add(kardex);
+            lastMovementByStock.put(key, kardex);
+        }
         return kardexList;
+    }
+
+    private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {
+        return productCod + "|" + variant + "|" + storeCod + "|" + warehouseCod;
     }
 
 

@@ -24,8 +24,11 @@ public interface PresaleDetWarehouseRepository extends JpaRepository<PresaleDetW
             select * from presale_det_warehouse 
             where 
             PresaleCod = :PresaleCod 
-            and ProductCod = :ProductCod 
+            and ItemNumber = :ItemNumber
             and Status = 'A'
             """,nativeQuery = true)
-    public List<PresaleDetWarehouseEntity> findByProductCod(@Param("PresaleCod") String PresaleCod,@Param("ProductCod") String ProductCod);
+    public List<PresaleDetWarehouseEntity> findByItemNumber(
+            @Param("PresaleCod") String PresaleCod,
+            @Param("ItemNumber") int ItemNumber
+    );
 }

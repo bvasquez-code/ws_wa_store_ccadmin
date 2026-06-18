@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -18,14 +19,16 @@ public class PresaleDetEntity extends AuditTableEntity implements Serializable {
     @Id
     public String PresaleCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
-    @Id
     public String Variant;
     public int NumUnit;
     public BigDecimal NumUnitPrice;
     public BigDecimal NumDiscount;
     public BigDecimal NumUnitPriceSale;
     public BigDecimal NumTotalPrice;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     @Transient
     public List<PresaleDetWarehouseEntity> DetailWarehouse;

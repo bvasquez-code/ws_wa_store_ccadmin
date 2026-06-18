@@ -15,11 +15,13 @@ public interface KardexRepository extends JpaRepository<KardexEntity,Long>, CcAd
             select k.* from kardex k
             where
             k.ProductCod = :ProductCod and k.WarehouseCod = :WarehouseCod and k.StoreCod = :StoreCod
+            and k.Variant = :Variant
             order by k.kardexID desc
             limit 1
             """,nativeQuery = true)
     public KardexEntity findLastMovement(
             @Param("ProductCod") String ProductCod,
+            @Param("Variant") String Variant,
             @Param("WarehouseCod") String WarehouseCod,
             @Param("StoreCod") String StoreCod
     );

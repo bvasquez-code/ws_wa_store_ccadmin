@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Table( name = "pucharse_det")
@@ -16,6 +17,7 @@ public class PucharseDetEntity extends AuditTableEntity implements Serializable 
     @Id
     public String PucharseCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
     public String Variant;
     public int NumUnit;
@@ -23,6 +25,8 @@ public class PucharseDetEntity extends AuditTableEntity implements Serializable 
     public BigDecimal NumTotalPrice;
     public String IsKardexAffected;
     public int NumUnitDelivered;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     @Transient
     public ProductEntity Product;

@@ -5,16 +5,14 @@ import java.io.Serializable;
 public class CreditNoteDetID implements Serializable {
 
     public String CreditNoteCod;
-    public String ProductCod;
-    public String Variant;
+    public int ItemNumber;
 
     public CreditNoteDetID(){
 
     }
 
-    public CreditNoteDetID(String creditNoteCod, String productCod, String variant) {
+    public CreditNoteDetID(String creditNoteCod, int itemNumber) {
         CreditNoteCod = creditNoteCod;
-        ProductCod = productCod;
-        Variant = variant;
+        ItemNumber = itemNumber;
     }
 }

@@ -32,7 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PucharseService extends SessionService {
@@ -80,11 +82,13 @@ public class PucharseService extends SessionService {
         head.PucharseReqCod = pucharseRegister.PucharseReqCod;
         List<PucharseDetEntity> detailList = new ArrayList<>();
 
+        int itemNumber = 1;
         for (var item : detailRequestList)
         {
             PucharseDetEntity pucharseDet = new PucharseDetEntity(item);
             pucharseDet.addSession(getUserCod(),true);
             pucharseDet.PucharseCod = head.PucharseCod;
+            pucharseDet.ItemNumber = itemNumber++;
             detailList.add(pucharseDet);
         }
 
@@ -116,6 +120,7 @@ public class PucharseService extends SessionService {
         List<ProductInfoEntity> productInfoList = new ArrayList<>();
         List<ProductInfoWarehouseEntity> productWarehouseList = new ArrayList<>();
         List<PucharseDetDeliveryEntity> DeliveryList = new ArrayList<>();
+        Map<String, KardexEntity> lastMovementByStock = new HashMap<>();
         WarehouseEntity warehouseUnit = new WarehouseEntity();
 
         boolean IsMultipleWarehouse = warehouseShared.IsMultipleWarehouse(Headboard.StoreCod);
@@ -138,17 +143,20 @@ public class PucharseService extends SessionService {
             if( IsMultipleWarehouse )
             {
                 detailWarehouseCod = pucharseRegister.DeliveryList.stream().filter(
-                        e-> e.ProductCod.equals(item.ProductCod) && e.Variant.equals(item.Variant)
+                        e-> e.ItemNumber == item.ItemNumber
                 ).toList();
             }
             else
             {
                 PucharseDetDeliveryEntity detDelivery = new PucharseDetDeliveryEntity();
                 detDelivery.PucharseCod = pucharseRegister.PucharseCod;
+                detDelivery.ItemNumber = item.ItemNumber;
                 detDelivery.ProductCod = item.ProductCod;
                 detDelivery.Variant = item.Variant;
                 detDelivery.NumUnit = item.NumUnit;
                 detDelivery.WarehouseCod = warehouseUnit.WarehouseCod;
+                detDelivery.LotNumber = item.LotNumber;
+                detDelivery.ExpirationDate = item.ExpirationDate;
                 detailWarehouseCod.add(detDelivery);
             }
 
@@ -157,15 +165,25 @@ public class PucharseService extends SessionService {
                 int NumStockBefore = 0;
 
                 itemWarehouse.PucharseCod = pucharseRegister.PucharseCod;
+                itemWarehouse.ItemNumber = item.ItemNumber;
+                itemWarehouse.ProductCod = item.ProductCod;
+                itemWarehouse.Variant = item.Variant;
+                itemWarehouse.LotNumber = item.LotNumber;
+                itemWarehouse.ExpirationDate = item.ExpirationDate;
                 itemWarehouse.addSession(getUserCod(),true);
 
-                KardexEntity kardexLast = this.kardexShared.findLastMovement(item.ProductCod,itemWarehouse.WarehouseCod,Headboard.StoreCod);
+                String stockKey = this.stockKey(item.ProductCod, item.Variant, Headboard.StoreCod, itemWarehouse.WarehouseCod);
+                KardexEntity kardexLast = lastMovementByStock.computeIfAbsent(
+                        stockKey,
+                        ignored -> this.kardexShared.findLastMovement(item.ProductCod,item.Variant,itemWarehouse.WarehouseCod,Headboard.StoreCod)
+                );
 
                 if( kardexLast != null ) NumStockBefore = kardexLast.NumStockAfter;
 
                 KardexEntity kardex = new KardexEntity(kardexLast,itemWarehouse,Headboard.StoreCod);
                 kardex.addSession(getUserCod(),true);
                 kardexList.add(kardex);
+                lastMovementByStock.put(stockKey, kardex);
 
                 ProductInfoWarehouseEntity productInfoWarehouse = this.productInfoWarehouseShared.findById(
                         new ProductInfoWarehouseId(item.ProductCod,item.Variant,itemWarehouse.WarehouseCod)
@@ -237,5 +255,9 @@ public class PucharseService extends SessionService {
         SearchDto search = new SearchDto(Query,Page,StoreCod);
         this.searchService = new SearchService(this.pucharseHeadRepository);
         return this.searchService.findAllStore(search,10);
+    }
+
+    private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {
+        return productCod + "|" + variant + "|" + storeCod + "|" + warehouseCod;
     }
 }

@@ -83,7 +83,7 @@ public class PresaleSearchService {
 
         for(var item : presaleDetail.DetailList)
         {
-            item.DetailWarehouse = this.presaleDetWarehouseRepository.findByProductCod(item.PresaleCod,item.ProductCod);
+            item.DetailWarehouse = this.presaleDetWarehouseRepository.findByItemNumber(item.PresaleCod,item.ItemNumber);
             item.Product = this.productShared.findById(item.ProductCod);
         }
 

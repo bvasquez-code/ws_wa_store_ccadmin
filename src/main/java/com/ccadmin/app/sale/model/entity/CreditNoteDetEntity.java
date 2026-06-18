@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Table(name = "credit_note_det")
@@ -20,15 +21,18 @@ public class CreditNoteDetEntity extends AuditTableEntity implements Serializabl
     public String CreditNoteCod;
 
     @Id
+    public int ItemNumber;
+
     public String ProductCod;
 
-    @Id
     public String Variant;
 
     public Integer NumUnit;
     public BigDecimal NumUnitPriceSale;
     public BigDecimal NumTotalPrice;
     public Integer NumUnitStockReturned;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     public CreditNoteDetEntity() {
     }

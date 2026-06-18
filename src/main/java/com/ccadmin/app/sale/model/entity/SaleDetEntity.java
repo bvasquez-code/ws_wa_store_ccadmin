@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -18,8 +19,8 @@ public class SaleDetEntity extends AuditTableEntity implements Serializable {
     @Id
     public String SaleCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
-    @Id
     public String Variant;
     public int NumUnit;
     public BigDecimal NumUnitPrice;
@@ -27,6 +28,8 @@ public class SaleDetEntity extends AuditTableEntity implements Serializable {
     public BigDecimal NumUnitPriceSale;
     public BigDecimal NumTotalPrice;
     public String IsAppliedTax;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     @Transient
     public List<SaleDetWarehouseEntity> DetailWarehouse;
@@ -41,6 +44,7 @@ public class SaleDetEntity extends AuditTableEntity implements Serializable {
     public SaleDetEntity(PresaleDetEntity presaleDet,String SaleCod)
     {
         this.SaleCod = SaleCod;
+        this.ItemNumber = presaleDet.ItemNumber;
         this.ProductCod = presaleDet.ProductCod;
         this.Variant = presaleDet.Variant;
         this.NumUnit = presaleDet.NumUnit;
@@ -49,10 +53,13 @@ public class SaleDetEntity extends AuditTableEntity implements Serializable {
         this.NumUnitPriceSale = presaleDet.NumUnitPriceSale;
         this.NumTotalPrice = presaleDet.NumTotalPrice;
         this.IsAppliedTax = "S";
+        this.LotNumber = presaleDet.LotNumber;
+        this.ExpirationDate = presaleDet.ExpirationDate;
     }
 
     public SaleDetEntity build(PresaleDetEntity presaleDet,String SaleCod){
         this.ProductCod = presaleDet.ProductCod;
+        this.ItemNumber = presaleDet.ItemNumber;
         this.Variant = presaleDet.Variant;
         this.NumUnit = presaleDet.NumUnit;
         this.NumUnitPrice = presaleDet.NumUnitPrice;
@@ -61,6 +68,8 @@ public class SaleDetEntity extends AuditTableEntity implements Serializable {
         this.NumTotalPrice = presaleDet.NumTotalPrice;
         this.IsAppliedTax = "S";
         this.SaleCod = SaleCod;
+        this.LotNumber = presaleDet.LotNumber;
+        this.ExpirationDate = presaleDet.ExpirationDate;
         return this;
     }
 

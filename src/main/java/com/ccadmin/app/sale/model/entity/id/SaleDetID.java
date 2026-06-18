@@ -5,6 +5,5 @@ import java.io.Serializable;
 public class SaleDetID implements Serializable {
 
     public String SaleCod;
-    public String ProductCod;
-    public String Variant;
+    public int ItemNumber;
 }

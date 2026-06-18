@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -19,6 +20,7 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long kardexID;
     public String OperationCod;
+    public Integer ItemNumber;
     public String SourceTable;
     public String TypeOperation;
     public String ProductCod;
@@ -28,6 +30,8 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
     public int NumStockBefore;
     public int NumStockMoved;
     public int NumStockAfter;
+    public String LotNumber;
+    public Date ExpirationDate;
     public int TypeOperationCod;
 
     public KardexEntity() {
@@ -36,6 +40,7 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
 
     public KardexEntity(KardexEntity kardexLast, PucharseDetDeliveryEntity pucharseDetDelivery, String StoreCod) {
         this.OperationCod = pucharseDetDelivery.PucharseCod;
+        this.ItemNumber = pucharseDetDelivery.ItemNumber;
         this.SourceTable = "pucharse_head";
         this.TypeOperation = "S";
         this.ProductCod = pucharseDetDelivery.ProductCod;
@@ -45,11 +50,14 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
         this.NumStockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
         this.NumStockMoved = pucharseDetDelivery.NumUnit;
         this.NumStockAfter = this.NumStockBefore + pucharseDetDelivery.NumUnit;
+        this.LotNumber = pucharseDetDelivery.LotNumber;
+        this.ExpirationDate = pucharseDetDelivery.ExpirationDate;
         this.TypeOperationCod = 2;
     }
 
     public KardexEntity(KardexEntity kardexLast, SaleDetWarehouseEntity saleDetWarehouse, String StoreCod) {
         this.OperationCod = saleDetWarehouse.SaleCod;
+        this.ItemNumber = saleDetWarehouse.ItemNumber;
         this.SourceTable = "sale_head";
         this.TypeOperation = "R";
         this.ProductCod = saleDetWarehouse.ProductCod;
@@ -59,12 +67,15 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
         this.NumStockBefore = kardexLast.NumStockAfter;
         this.NumStockMoved = saleDetWarehouse.NumUnit;
         this.NumStockAfter = this.NumStockBefore - saleDetWarehouse.NumUnit;
+        this.LotNumber = saleDetWarehouse.LotNumber;
+        this.ExpirationDate = saleDetWarehouse.ExpirationDate;
         this.TypeOperationCod = 1;
         validateNonNegativeStock();
     }
 
     public KardexEntity(KardexEntity kardexLast, CreditNoteDetWarehouseEntity creditNoteDetWarehouse, String StoreCod) {
         this.OperationCod = creditNoteDetWarehouse.CreditNoteCod;
+        this.ItemNumber = creditNoteDetWarehouse.ItemNumber;
         this.SourceTable = "credit_note_head";
         this.TypeOperation = "S";
         this.ProductCod = creditNoteDetWarehouse.ProductCod;
@@ -74,6 +85,8 @@ public class KardexEntity extends AuditTableEntity implements Serializable {
         this.NumStockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
         this.NumStockMoved = creditNoteDetWarehouse.NumUnit;
         this.NumStockAfter = this.NumStockBefore + creditNoteDetWarehouse.NumUnit;
+        this.LotNumber = creditNoteDetWarehouse.LotNumber;
+        this.ExpirationDate = creditNoteDetWarehouse.ExpirationDate;
         this.TypeOperationCod = 4;
     }
 

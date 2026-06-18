@@ -26,8 +26,18 @@ public class PucharseDetService extends SessionService {
     public PucharseDetConfirmDto confirm(PucharseDetConfirmDto pucharseDetConfirm){
 
         PucharseHeadEntity pucharseHead = this.pucharseHeadRepository.findById(pucharseDetConfirm.pucharseDet.PucharseCod).get();
+        pucharseDetConfirm.pucharseDetDelivery.PucharseCod = pucharseDetConfirm.pucharseDet.PucharseCod;
+        pucharseDetConfirm.pucharseDetDelivery.ItemNumber = pucharseDetConfirm.pucharseDet.ItemNumber;
+        pucharseDetConfirm.pucharseDetDelivery.ProductCod = pucharseDetConfirm.pucharseDet.ProductCod;
+        pucharseDetConfirm.pucharseDetDelivery.Variant = pucharseDetConfirm.pucharseDet.Variant;
+        pucharseDetConfirm.pucharseDetDelivery.LotNumber = pucharseDetConfirm.pucharseDet.LotNumber;
+        pucharseDetConfirm.pucharseDetDelivery.ExpirationDate = pucharseDetConfirm.pucharseDet.ExpirationDate;
+
         KardexEntity kardexLast = this.kardexShared.findLastMovement(
-                pucharseDetConfirm.pucharseDet.ProductCod,pucharseDetConfirm.pucharseDetDelivery.WarehouseCod,pucharseHead.StoreCod
+                pucharseDetConfirm.pucharseDet.ProductCod,
+                pucharseDetConfirm.pucharseDet.Variant,
+                pucharseDetConfirm.pucharseDetDelivery.WarehouseCod,
+                pucharseHead.StoreCod
         );
         KardexEntity kardex = new KardexEntity(
                 kardexLast,pucharseDetConfirm.pucharseDetDelivery,pucharseHead.StoreCod

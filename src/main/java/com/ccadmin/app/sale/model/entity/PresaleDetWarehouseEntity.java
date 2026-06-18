@@ -10,6 +10,7 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table( name = "presale_det_warehouse" )
@@ -19,12 +20,13 @@ public class PresaleDetWarehouseEntity extends AuditTableEntity implements Seria
     @Id
     public String PresaleCod;
     @Id
+    public int ItemNumber;
     public String ProductCod;
-    @Id
     public String Variant;
-    @Id
     public String WarehouseCod;
     public int NumUnit;
+    public String LotNumber;
+    public Date ExpirationDate;
 
     public PresaleDetWarehouseEntity(){
 
@@ -32,10 +34,13 @@ public class PresaleDetWarehouseEntity extends AuditTableEntity implements Seria
 
     public PresaleDetWarehouseEntity build(PresaleDetEntity presaleDet,WarehouseEntity warehouseDefault){
         this.PresaleCod = presaleDet.PresaleCod;
+        this.ItemNumber = presaleDet.ItemNumber;
         this.ProductCod = presaleDet.ProductCod;
         this.Variant = presaleDet.Variant;
         this.NumUnit = presaleDet.NumUnit;
         this.WarehouseCod = warehouseDefault.WarehouseCod;
+        this.LotNumber = presaleDet.LotNumber;
+        this.ExpirationDate = presaleDet.ExpirationDate;
         return this;
     }
 

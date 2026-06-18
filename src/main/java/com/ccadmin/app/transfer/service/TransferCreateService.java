@@ -211,6 +211,7 @@ public class TransferCreateService extends SessionService {
         }
 
         List<KardexEntity> kardexList = new ArrayList<>();
+        Map<String, KardexEntity> lastMovementByStock = new HashMap<>();
 
 
         List<TransferDetEntity> detListDispatch = detList.stream()
@@ -221,8 +222,10 @@ public class TransferCreateService extends SessionService {
             String warehouseCodOrigin = resolveWarehouse(head.StoreCodOrigin, det.WarehouseCodOrigin);
             det.WarehouseCodOrigin = warehouseCodOrigin;
 
-            KardexEntity kardexLast = this.kardexShared.findLastMovement(
-                    det.ProductCod, warehouseCodOrigin, head.StoreCodOrigin
+            String stockKey = this.stockKey(det.ProductCod, det.Variant, head.StoreCodOrigin, warehouseCodOrigin);
+            KardexEntity kardexLast = lastMovementByStock.computeIfAbsent(
+                    stockKey,
+                    ignored -> this.kardexShared.findLastMovement(det.ProductCod, det.Variant, warehouseCodOrigin, head.StoreCodOrigin)
             );
 
             int stockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
@@ -232,6 +235,7 @@ public class TransferCreateService extends SessionService {
 
             KardexEntity kardex = new KardexEntity();
             kardex.OperationCod = head.TransferCod;
+            kardex.ItemNumber = det.ItemNumber;
             kardex.SourceTable = TransferConstants.KARDEX_SOURCE_TABLE;
             kardex.TypeOperation = TransferConstants.KARDEX_TYPE_OUT;
             kardex.ProductCod = det.ProductCod;
@@ -241,9 +245,12 @@ public class TransferCreateService extends SessionService {
             kardex.NumStockBefore = stockBefore;
             kardex.NumStockMoved = det.NumUnitDispatch;
             kardex.NumStockAfter = stockBefore - det.NumUnitDispatch;
+            kardex.LotNumber = det.LotNumber;
+            kardex.ExpirationDate = det.ExpirationDate;
             kardex.TypeOperationCod = 5;
             kardex.session(getUserSession(request.user));
             kardexList.add(kardex);
+            lastMovementByStock.put(stockKey, kardex);
         }
 
         TransferDocumentEntity transferDocument = this.counterfoilShared.generateDocumentTransfer(
@@ -347,6 +354,7 @@ public class TransferCreateService extends SessionService {
         }
 
         List<KardexEntity> kardexList = new ArrayList<>();
+        Map<String, KardexEntity> lastMovementByStock = new HashMap<>();
 
         List<TransferDetEntity> detListReceive = detList.stream()
                 .filter( e -> e.NumUnitReception > 0)
@@ -356,14 +364,17 @@ public class TransferCreateService extends SessionService {
             String warehouseCodDest = resolveWarehouse(head.StoreCodDest, det.WarehouseCodDest);
             det.WarehouseCodDest = warehouseCodDest;
 
-            KardexEntity kardexLast = this.kardexShared.findLastMovement(
-                    det.ProductCod, warehouseCodDest, head.StoreCodDest
+            String stockKey = this.stockKey(det.ProductCod, det.Variant, head.StoreCodDest, warehouseCodDest);
+            KardexEntity kardexLast = lastMovementByStock.computeIfAbsent(
+                    stockKey,
+                    ignored -> this.kardexShared.findLastMovement(det.ProductCod, det.Variant, warehouseCodDest, head.StoreCodDest)
             );
 
             int stockBefore = (kardexLast == null) ? 0 : kardexLast.NumStockAfter;
 
             KardexEntity kardex = new KardexEntity();
             kardex.OperationCod = head.TransferCod;
+            kardex.ItemNumber = det.ItemNumber;
             kardex.SourceTable = TransferConstants.KARDEX_SOURCE_TABLE;
             kardex.TypeOperation = TransferConstants.KARDEX_TYPE_IN;
             kardex.ProductCod = det.ProductCod;
@@ -373,9 +384,12 @@ public class TransferCreateService extends SessionService {
             kardex.NumStockBefore = stockBefore;
             kardex.NumStockMoved = det.NumUnitReception;
             kardex.NumStockAfter = stockBefore + det.NumUnitReception;
+            kardex.LotNumber = det.LotNumber;
+            kardex.ExpirationDate = det.ExpirationDate;
             kardex.TypeOperationCod = 6;
             kardex.session(getUserSession(request.user));
             kardexList.add(kardex);
+            lastMovementByStock.put(stockKey, kardex);
         }
 
         Date now = new Date();
@@ -585,6 +599,10 @@ public class TransferCreateService extends SessionService {
 
     private String getUserSession(String user) {
         return StringUtil.isEmpty(user) ? getUserCod() : user;
+    }
+
+    private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {
+        return productCod + "|" + variant + "|" + storeCod + "|" + warehouseCod;
     }
 
     public TransferDetRegisterMassiveDto saveDet(TransferDetRegisterMassiveDto transferDetRegisterMassiveDto) throws TransferException {

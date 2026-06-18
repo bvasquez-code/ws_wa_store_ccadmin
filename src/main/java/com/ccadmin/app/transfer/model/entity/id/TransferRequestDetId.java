@@ -4,7 +4,5 @@ import java.io.Serializable;
 
 public class TransferRequestDetId implements Serializable {
     public String TransferReqCod;
-    public String ProductCod;
-    public String Variant;
     public int ItemNumber;
 }

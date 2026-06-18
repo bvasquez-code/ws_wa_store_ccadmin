@@ -15,9 +15,7 @@ public class TransferRequestDetEntity extends AuditTableEntity implements Serial
 
     @Id
     public String TransferReqCod;
-    @Id
     public String ProductCod;
-    @Id
     public String Variant;
     @Id
     public int ItemNumber;

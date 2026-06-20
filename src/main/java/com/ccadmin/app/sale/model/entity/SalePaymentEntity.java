@@ -72,7 +72,7 @@ public class SalePaymentEntity extends AuditTableEntity implements Serializable 
         return this;
     }
 
-    public static SalePaymentEntity buildReversal(SalePaymentEntity originalPayment, TrxPaymentEntity trxPaymentReversal, String creationUser) throws SalePaymentException {
+    public static SalePaymentEntity buildReversal(SalePaymentEntity originalPayment, TrxPaymentEntity trxPaymentReversal, String creationUser, int PaymentNumber) throws SalePaymentException {
         if (originalPayment == null) {
             throw new SalePaymentException("El pago original no puede ser nulo.");
         }
@@ -81,14 +81,14 @@ public class SalePaymentEntity extends AuditTableEntity implements Serializable 
         }
 
         SalePaymentEntity reversal = new SalePaymentEntity();
-        reversal.PaymentNumber = originalPayment.PaymentNumber + 1;
+        reversal.PaymentNumber = PaymentNumber;
         reversal.SaleCod = originalPayment.SaleCod;
         reversal.TrxPaymentId = trxPaymentReversal.TrxPaymentId;
         reversal.CurrencyCod = originalPayment.CurrencyCod;
         reversal.CurrencyCodSys = originalPayment.CurrencyCodSys;
         reversal.NumExchangevalue = originalPayment.NumExchangevalue;
-        reversal.NumAmountPaid = originalPayment.NumAmountPaid.negate().add(originalPayment.NumAmountReturned);
-        reversal.NumAmountPaidOrigin = originalPayment.NumAmountPaidOrigin.negate().add(originalPayment.NumAmountReturned);
+        reversal.NumAmountPaid = trxPaymentReversal.AmountPaid;
+        reversal.NumAmountPaidOrigin = trxPaymentReversal.AmountPaid;
         reversal.NumAmountReturned = BigDecimal.ZERO;
         reversal.TrxPayment = trxPaymentReversal;
         reversal.CreationUser = creationUser;

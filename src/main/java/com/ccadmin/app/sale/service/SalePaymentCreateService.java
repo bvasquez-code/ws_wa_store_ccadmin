@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class SalePaymentCreateService extends SessionService {
@@ -64,6 +65,11 @@ public class SalePaymentCreateService extends SessionService {
     @Transactional
     public SalePaymentEntity save(SalePaymentEntity salePayment){
         return this.salePaymentRepository.save(salePayment);
+    }
+
+    @Transactional
+    public List<SalePaymentEntity> saveAll(List<SalePaymentEntity> salePaymentList){
+        return this.salePaymentRepository.saveAll(salePaymentList);
     }
 
 }

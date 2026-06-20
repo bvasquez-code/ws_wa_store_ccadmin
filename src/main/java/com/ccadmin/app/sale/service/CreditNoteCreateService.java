@@ -127,14 +127,6 @@ public class CreditNoteCreateService extends SessionService {
         CreditNoteHeadEntity creditNoteHead = this.creditNoteHeadRepository.findById(creditNoteRegister.Headboard.CreditNoteCod).get();
         creditNoteHead.CreditNoteStatus = SaleConstants.CONFIRMED;
 
-        List<SalePaymentDto> salePaymentList = salePaymentSearchService.findBySaleCod(creditNoteRegister.Headboard.SaleCod);
-
-        for(var salePaymentDto : salePaymentList){
-            TrxPaymentEntity trxPayment = TrxPaymentEntity.buildReversal(salePaymentDto.TrxPayment,getUserCod());
-            trxPayment = this.trxPaymentShared.save(trxPayment);
-            SalePaymentEntity salePayment = SalePaymentEntity.buildReversal(salePaymentDto.SalePayment,trxPayment,getUserCod());
-            salePayment = salePaymentCreateService.save(salePayment);
-        }
         this.creditNoteHeadRepository.save(creditNoteHead);
         this.saleHeadRepository.updateHasCreditNote(creditNoteRegister.Headboard.SaleCod,"S");
 
@@ -215,5 +207,62 @@ public class CreditNoteCreateService extends SessionService {
 
     private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {
         return productCod + "|" + variant + "|" + storeCod + "|" + warehouseCod;
+    }
+
+    private void saveReversalPayment(CreditNoteHeadEntity creditNoteHead) throws SalePaymentException{
+
+        List<SalePaymentDto> salePaymentList = salePaymentSearchService.findBySaleCod(creditNoteHead.SaleCod);
+        int PaymentNumber = salePaymentList.size();
+
+        log.info("MONTO_PENDIENTE_POR_DEVOLER -->> {}",creditNoteHead.NumTotalPrice);
+        log.info("NUMERO_PAGOS_ORIGEN -->> {}",PaymentNumber);
+
+        if(creditNoteHead.TypeCreditNote.equals("T")){
+            for(var salePaymentDto : salePaymentList){
+                PaymentNumber++;
+                TrxPaymentEntity trxPayment = TrxPaymentEntity.buildReversal(salePaymentDto.TrxPayment,getUserCod());
+                trxPayment = this.trxPaymentShared.save(trxPayment);
+                SalePaymentEntity salePayment = SalePaymentEntity.buildReversal(salePaymentDto.SalePayment,trxPayment,getUserCod(),PaymentNumber);
+                salePayment = salePaymentCreateService.save(salePayment);
+            }
+        }else if(creditNoteHead.TypeCreditNote.equals("P")){
+            BigDecimal NumTotalReturn = BigDecimal.ZERO;
+            BigDecimal NumTotalPending = creditNoteHead.NumTotalPrice;
+            TrxPaymentEntity trxPayment = null;
+
+            for(var salePaymentDto : salePaymentList){
+
+                BigDecimal NumAmountPaidOrigin = salePaymentDto.SalePayment.NumAmountPaid
+                                            .subtract(salePaymentDto.SalePayment.NumAmountReturned);
+
+                if(NumTotalPending.doubleValue() == 0){
+                    break;
+                }
+
+                if(NumTotalPending.subtract(NumAmountPaidOrigin).doubleValue() > 0 ){                   
+                    trxPayment = TrxPaymentEntity.buildReversal(salePaymentDto.TrxPayment,getUserCod());
+                }else if(NumTotalPending.subtract(NumAmountPaidOrigin).doubleValue() == 0 ){                   
+                    trxPayment = TrxPaymentEntity.buildReversal(salePaymentDto.TrxPayment,getUserCod());
+                }else if(NumTotalPending.subtract(NumAmountPaidOrigin).doubleValue() < 0 ){  
+                    BigDecimal AmountPaidJust = NumTotalPending;
+                    trxPayment = TrxPaymentEntity.buildPartialReversal(salePaymentDto.TrxPayment,AmountPaidJust,getUserCod());
+                }
+
+                PaymentNumber++;
+                trxPayment = this.trxPaymentShared.save(trxPayment);
+                SalePaymentEntity salePayment = SalePaymentEntity.buildReversal(salePaymentDto.SalePayment,trxPayment,getUserCod(),PaymentNumber);
+                salePayment = salePaymentCreateService.save(salePayment);
+
+                NumTotalReturn = NumTotalReturn.add(trxPayment.AmountPaid.negate());
+                NumTotalPending = NumTotalPending.subtract(trxPayment.AmountPaid.negate());
+
+                log.info("MONTO_DEVUELTO -->> {}",trxPayment.AmountPaid);
+                log.info("MONTO_TOTAL_DEVUELTO -->> {}",NumTotalReturn);
+                log.info("MONTO_PENDIENTE -->> {}",NumTotalPending);
+                log.info("REVERSION_PAGO_OPERACION -->> {}",trxPayment.toString());
+                log.info("REVERSION_PAGO_VENTA -->> {}",salePayment.toString());
+            }
+
+        }
     }
 }

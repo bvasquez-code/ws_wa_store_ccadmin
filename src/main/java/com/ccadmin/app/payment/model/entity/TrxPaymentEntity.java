@@ -44,6 +44,7 @@ public class TrxPaymentEntity extends AuditTableEntity implements Serializable {
         }
 
         TrxPaymentEntity reversal = new TrxPaymentEntity();
+        reversal.TrxPaymentId = 0L;
         reversal.ReversalOfTrxPaymentId = originalPayment.TrxPaymentId;
         reversal.PaymentMethodCod = originalPayment.PaymentMethodCod;
         reversal.PaymentPlatform = originalPayment.PaymentPlatform;
@@ -60,6 +61,34 @@ public class TrxPaymentEntity extends AuditTableEntity implements Serializable {
         reversal.AmountReturned = BigDecimal.ZERO;
         reversal.TypeMovement = "E"; // Extorno
         reversal.CreationUser = creationUser;
+        reversal.CreationDate = new Date();
+        reversal.Status = "A";
+        return reversal;
+    }
+
+    public static TrxPaymentEntity buildPartialReversal(TrxPaymentEntity originalPayment,BigDecimal amountToReverse,String userCod){
+        if (originalPayment == null) {
+            throw new TrxPaymentBuildException("El pago original no puede ser nulo.");
+        }
+
+        TrxPaymentEntity reversal = new TrxPaymentEntity();
+        reversal.TrxPaymentId = 0L;
+        reversal.ReversalOfTrxPaymentId = originalPayment.TrxPaymentId;
+        reversal.PaymentMethodCod = originalPayment.PaymentMethodCod;
+        reversal.PaymentPlatform = originalPayment.PaymentPlatform;
+        reversal.CardNumber = originalPayment.CardNumber;
+        reversal.CardHolderName = originalPayment.CardHolderName;
+        reversal.CardExpirationDate = originalPayment.CardExpirationDate;
+        reversal.CardCVV = originalPayment.CardCVV;
+        reversal.TransactionId = null;
+        reversal.PaymentStatus = "OK";
+        reversal.CurrencyCod = originalPayment.CurrencyCod;
+        reversal.CurrencyCodSys = originalPayment.CurrencyCodSys;
+        reversal.NumExchangevalue = originalPayment.NumExchangevalue;
+        reversal.AmountPaid = amountToReverse.negate();  // invierte el signo
+        reversal.AmountReturned = BigDecimal.ZERO;
+        reversal.TypeMovement = "E"; // Extorno
+        reversal.CreationUser = userCod;
         reversal.CreationDate = new Date();
         reversal.Status = "A";
         return reversal;

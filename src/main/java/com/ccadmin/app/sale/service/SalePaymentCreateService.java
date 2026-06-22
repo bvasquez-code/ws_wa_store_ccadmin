@@ -57,7 +57,12 @@ public class SalePaymentCreateService extends SessionService {
 
         salePaymentRepository.save(salePayment);
         if( TotalPayment.add(salePayment.NumAmountPaid).doubleValue() >= saleHead.NumTotalPrice.doubleValue() ){
-            this.saleCreateService.confirm(payment.SaleCod,payment.DocumentType,payment.CounterfoilCod);
+
+            saleHead.IsPaid = "S";
+            saleHead.addSession(getUserCod());
+            this.saleHeadRepository.save(saleHead);
+
+            // this.saleCreateService.confirm(payment.SaleCod,payment.DocumentType,payment.CounterfoilCod);
         }
         return salePayment;
     }

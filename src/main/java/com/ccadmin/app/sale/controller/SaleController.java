@@ -1,6 +1,7 @@
 package com.ccadmin.app.sale.controller;
 
 import com.ccadmin.app.sale.exception.SaleException;
+import com.ccadmin.app.sale.model.dto.SaleConfirmDto;
 import com.ccadmin.app.sale.model.dto.SalePaymentRegisterDto;
 import com.ccadmin.app.sale.service.SaleCreateService;
 import com.ccadmin.app.sale.service.SalePaymentCreateService;
@@ -126,6 +127,26 @@ public class SaleController {
         } catch (Exception ex) {
             log.error("Error :{}", ex.getMessage(), ex);
             return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("confirm")
+    public ResponseEntity<ResponseWsDto> confirm(@RequestBody SaleConfirmDto request)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto(this.saleCreateService.confirm(
+                        request.SaleCod,
+                        request.DocumentType,
+                        request.CounterfoilCod
+                    ))
+                    , HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            log.error("Error :{}",ex.getMessage(), ex);
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
         }
     }
 

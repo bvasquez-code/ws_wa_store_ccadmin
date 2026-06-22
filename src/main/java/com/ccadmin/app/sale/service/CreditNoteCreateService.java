@@ -10,6 +10,7 @@ import com.ccadmin.app.sale.exception.SalePaymentException;
 import com.ccadmin.app.sale.model.constants.SaleConstants;
 import com.ccadmin.app.sale.model.dto.CreditNoteDetailDto;
 import com.ccadmin.app.sale.model.dto.CreditNoteRegisterDto;
+import com.ccadmin.app.sale.model.dto.CreditNoteReturnPaymentRegisterDto;
 import com.ccadmin.app.sale.model.dto.SalePaymentDto;
 import com.ccadmin.app.sale.model.entity.*;
 import com.ccadmin.app.sale.repository.*;
@@ -75,8 +76,6 @@ public class CreditNoteCreateService extends SessionService {
 
         SaleHeadEntity saleHead = this.saleHeadRepository.findById(creditNoteRegister.Headboard.SaleCod).get();
 
-        SaleDocumentEntity saleDocument = this.saleDocumentRepository.findBySaleCod(saleHead.SaleCod);
-
         int itemNumber = 1;
         for (var product : creditNoteRegister.DetailList) {
             product.CreditNoteCod = creditNoteRegister.Headboard.CreditNoteCod;
@@ -98,19 +97,9 @@ public class CreditNoteCreateService extends SessionService {
                 .validate()
                 .session(getUserCod());
 
-        String GroupDocument = (saleDocument.DocumentCod.startsWith("B")) ? "B" : "F";
-
-
-        CreditNoteDocumentEntity creditNoteDocument = (creditNoteRegister.Document == null || creditNoteRegister.Document.DocumentCod.isEmpty()) ?
-                this.counterfoilShared.generateDocumentCreditNote(getStoreCod(),"07",creditNoteRegister.Headboard.CreditNoteCod,GroupDocument)
-                : creditNoteRegister.Document;
-
-        log.info("DOCUMENTO_NOTA_CREDITO -->> {}",creditNoteDocument.DocumentCod);
-
         this.creditNoteDetRepository.updateStatusAll(creditNoteRegister.Headboard.CreditNoteCod,"I");
         this.creditNoteHeadRepository.save(creditNoteRegister.Headboard);
         this.creditNoteDetRepository.saveAll(creditNoteRegister.DetailList);
-        this.creditNoteDocumentRepository.save(creditNoteDocument);
 
         log.info("FIN_CREACION_NOTA_CREDITO -->> {}",creditNoteRegister.Headboard.CreditNoteCod);
 
@@ -120,17 +109,68 @@ public class CreditNoteCreateService extends SessionService {
     @Transactional
     public CreditNoteDetailDto confirm(CreditNoteRegisterDto creditNoteRegister) throws SaleException, SalePaymentException {
 
-        if(creditNoteRegister.Headboard.CreditNoteStatus.equals(SaleConstants.CONFIRMED)){
+        CreditNoteHeadEntity creditNoteHead = this.creditNoteHeadRepository.findById(creditNoteRegister.Headboard.CreditNoteCod).get();
+
+        if(creditNoteHead.CreditNoteStatus.equals(SaleConstants.CONFIRMED)){
             throw new SaleException("Nota de crédito ya fue confirmada");
         }
 
-        CreditNoteHeadEntity creditNoteHead = this.creditNoteHeadRepository.findById(creditNoteRegister.Headboard.CreditNoteCod).get();
         creditNoteHead.CreditNoteStatus = SaleConstants.CONFIRMED;
+        CreditNoteDocumentEntity creditNoteDocument = this.creditNoteDocumentRepository.findByCreditNoteCod(creditNoteHead.CreditNoteCod);
+
+        if (creditNoteDocument == null) {
+            SaleDocumentEntity saleDocument = this.saleDocumentRepository.findBySaleCod(creditNoteHead.SaleCod);
+            String GroupDocument = (saleDocument.DocumentCod.startsWith("B")) ? "B" : "F";
+            creditNoteDocument = this.counterfoilShared.generateDocumentCreditNote(getStoreCod(),"07",creditNoteHead.CreditNoteCod,GroupDocument);
+            log.info("DOCUMENTO_NOTA_CREDITO -->> {}",creditNoteDocument.DocumentCod);
+            this.creditNoteDocumentRepository.save(creditNoteDocument);
+        }
 
         this.creditNoteHeadRepository.save(creditNoteHead);
         this.saleHeadRepository.updateHasCreditNote(creditNoteRegister.Headboard.SaleCod,"S");
 
         return this.creditNoteSearchService.findById(creditNoteRegister.Headboard.CreditNoteCod);
+    }
+
+    @Transactional
+    public SalePaymentEntity addReturnPayment(CreditNoteReturnPaymentRegisterDto payment) throws SaleException, SalePaymentException {
+
+        CreditNoteHeadEntity creditNoteHead = this.creditNoteHeadRepository.findById(payment.CreditNoteCod).get();
+        if(creditNoteHead.CreditNoteStatus.equals(SaleConstants.CONFIRMED)){
+            throw new SaleException("Nota de credito ya fue confirmada");
+        }
+
+        List<SalePaymentDto> salePaymentList = salePaymentSearchService.findBySaleCod(creditNoteHead.SaleCod);
+        BigDecimal totalReturned = this.totalReturned(salePaymentList);
+
+        if(totalReturned.doubleValue() >= creditNoteHead.NumTotalPrice.doubleValue()){
+            throw new SalePaymentException("Nota de credito ya completo la devolucion");
+        }
+
+        TrxPaymentEntity trxPayment = this.trxPaymentShared.findById(payment.TrxPaymentId);
+        if(!"E".equals(trxPayment.TypeMovement) || trxPayment.ReversalOfTrxPaymentId == null){
+            throw new SalePaymentException("La transaccion de pago no corresponde a una reversa");
+        }
+        if(this.existsSalePayment(salePaymentList, trxPayment.TrxPaymentId)){
+            throw new SalePaymentException("Reversa de pago ya fue registrada");
+        }
+
+        SalePaymentDto originalSalePayment = this.findOriginalPayment(salePaymentList, trxPayment.ReversalOfTrxPaymentId);
+
+        int PaymentNumber = salePaymentList.size() + 1;
+        SalePaymentEntity salePayment = SalePaymentEntity.buildReversal(originalSalePayment.SalePayment,trxPayment,getUserCod(),PaymentNumber);
+        salePayment = salePaymentCreateService.save(salePayment);
+
+        BigDecimal newTotalReturned = totalReturned.add(salePayment.NumAmountPaid.negate());
+        if(newTotalReturned.doubleValue() >= creditNoteHead.NumTotalPrice.doubleValue()){
+            creditNoteHead.IsPaid = "S";
+            this.creditNoteHeadRepository.save(creditNoteHead);
+            // CreditNoteRegisterDto creditNoteRegister = new CreditNoteRegisterDto();
+            // creditNoteRegister.Headboard = creditNoteHead;
+            // this.confirm(creditNoteRegister);
+        }
+
+        return salePayment;
     }
 
     @Transactional
@@ -199,10 +239,30 @@ public class CreditNoteCreateService extends SessionService {
 
         if(creditNoteRegister.Document == null || creditNoteRegister.Document.DocumentCod.isEmpty()){
             CreditNoteHeadEntity creditNoteHead = this.creditNoteHeadRepository.findBySaleCod(creditNoteRegister.Headboard.SaleCod);
-            if(creditNoteHead != null){
+            if(creditNoteHead != null && !creditNoteHead.CreditNoteCod.equals(creditNoteRegister.Headboard.CreditNoteCod)){
                 throw new SaleException("Venta ya tiene asociada una nota de crédito");
             }
         }
+    }
+
+    private SalePaymentDto findOriginalPayment(List<SalePaymentDto> salePaymentList, Long trxPaymentId) throws SalePaymentException {
+        return salePaymentList.stream()
+                .filter(payment -> payment.TrxPayment.TrxPaymentId.equals(trxPaymentId))
+                .filter(payment -> !"E".equals(payment.TrxPayment.TypeMovement))
+                .findFirst()
+                .orElseThrow(() -> new SalePaymentException("Pago original no existe en la venta de origen"));
+    }
+
+    private BigDecimal totalReturned(List<SalePaymentDto> salePaymentList) {
+        return salePaymentList.stream()
+                .filter(payment -> "E".equals(payment.TrxPayment.TypeMovement))
+                .map(payment -> payment.SalePayment.NumAmountPaid.negate())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private boolean existsSalePayment(List<SalePaymentDto> salePaymentList, Long trxPaymentId) {
+        return salePaymentList.stream()
+                .anyMatch(payment -> payment.TrxPayment.TrxPaymentId.equals(trxPaymentId));
     }
 
     private String stockKey(String productCod, String variant, String storeCod, String warehouseCod) {

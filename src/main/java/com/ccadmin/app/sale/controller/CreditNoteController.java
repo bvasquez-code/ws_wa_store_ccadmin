@@ -1,6 +1,7 @@
 package com.ccadmin.app.sale.controller;
 
 import com.ccadmin.app.sale.model.dto.CreditNoteRegisterDto;
+import com.ccadmin.app.sale.model.dto.CreditNoteReturnPaymentRegisterDto;
 import com.ccadmin.app.sale.service.CreditNoteCreateService;
 import com.ccadmin.app.sale.service.CreditNoteSearchService;
 import com.ccadmin.app.shared.model.dto.ResponseWsDto;
@@ -68,6 +69,21 @@ public class CreditNoteController {
         try{
             return new ResponseEntity<ResponseWsDto>(
                     new ResponseWsDto(this.creditNoteCreateService.confirm(creditNoteRegister))
+                    , HttpStatus.OK
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<ResponseWsDto>(new ResponseWsDto(ex),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("addReturnPayment")
+    public ResponseEntity<ResponseWsDto> addReturnPayment(@RequestBody CreditNoteReturnPaymentRegisterDto payment)
+    {
+        try{
+            return new ResponseEntity<ResponseWsDto>(
+                    new ResponseWsDto(this.creditNoteCreateService.addReturnPayment(payment))
                     , HttpStatus.OK
             );
         }

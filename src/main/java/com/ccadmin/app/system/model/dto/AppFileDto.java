@@ -5,4 +5,6 @@ public class AppFileDto {
     public String base64;
 
     public String extension;
+
+    public int groupTypeFile;
 }

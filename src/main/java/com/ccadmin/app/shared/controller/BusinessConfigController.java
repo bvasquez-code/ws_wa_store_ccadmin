@@ -69,7 +69,7 @@ public class BusinessConfigController {
 
     @GetMapping("findDataForm")
     public ResponseEntity<ResponseWsDto> findDataForm(@RequestParam(required = false) String GroupCod, @RequestParam(required = false) Integer ConfigCorr) {
-        try { return new ResponseEntity<>(searchService.findDataForm(GroupCod, ConfigCorr), HttpStatus.OK); }
+        try { return new ResponseEntity<>(searchService.findDataForm(GroupCod), HttpStatus.OK); }
         catch (Exception ex) { return new ResponseEntity<>(new ResponseWsDto(ex), HttpStatus.BAD_REQUEST); }
     }
 

@@ -65,19 +65,23 @@ public class BusinessConfigSearchService {
         return this.searchTService.findAllStore(new SearchDto(query, page, groupCod), 10);
     }
 
-    public ResponseWsDto findDataForm(String groupCod, Integer configCorr) {
+    public ResponseWsDto findDataForm(String groupCod) {
         ResponseWsDto rpt = new ResponseWsDto();
-
-        if (groupCod != null && !groupCod.isEmpty() && configCorr != null) {
-            rpt.AddResponseAdditional("businessConfig", this.findById(groupCod, configCorr));
-        }
 
         if (groupCod != null && !groupCod.isEmpty()) {
             BusinessConfigGroupEntity businessConfigGroup = this.businessConfigGroupSearchService.findById(groupCod);
             rpt.AddResponseAdditional("businessConfigGroup", businessConfigGroup);
-        }
 
-        rpt.AddResponseAdditional("businessConfigGroupList", this.businessConfigGroupSearchService.findActives());
+            List<BusinessConfigEntity> businessConfigList = this.findByGroupCod(groupCod);
+            rpt.AddResponseAdditional("businessConfigList", businessConfigList);
+
+            int ConfigCorrNext = businessConfigList.stream()
+                .mapToInt(e->e.ConfigCorr)
+                .max()
+                .orElse(0) + 1;
+
+            rpt.AddResponseAdditional("ConfigCorrNext", ConfigCorrNext);
+        }
 
         return rpt;
     }

@@ -16,6 +16,8 @@ public class PaymentMethodEntity extends AuditTableEntity implements Serializabl
     public String Name;
     public String Description;
     public String PaymentMethodType;
+    public String FileCod;
+    public String Route;
 
     public PaymentMethodEntity validate() {
         if (PaymentMethodCod == null || PaymentMethodCod.isBlank()) {

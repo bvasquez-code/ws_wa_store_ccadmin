@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.UUID;
 
 @Service
 public class AppFileService extends SessionService {
@@ -33,38 +32,33 @@ public class AppFileService extends SessionService {
         return this.appFileRepository.findById(FileCod).get();
     }
 
-    public ResponseWsDto save(AppFileDto appFileDto)
+    public ResponseWsDto save(AppFileDto appFileDto) throws IOException
     {
-        try{
-            AppFileEntity appFile = new AppFileEntity();
+        AppFileEntity appFile = new AppFileEntity();
 
-            BusinessConfigEntity physicalRoute = this.businessConfigSearchService.findById(
-                    new BusinessConfigEntityID("ConfigurationFiles",1)
-            );
-            BusinessConfigEntity hostRoute = this.businessConfigSearchService.findById(
-                    new BusinessConfigEntityID("ConfigurationFiles",2)
-            );
+        int groupTypeFile = (appFileDto.groupTypeFile == 0) ? 1 : appFileDto.groupTypeFile;
 
-            appFile.FileType = getTypeFile(appFileDto.extension);
-            appFile.FileCod = generateCodFile(appFile.FileType);
-            appFile.Name = appFile.FileCod + "." + appFileDto.extension;
-            appFile.Route = physicalRoute.ConfigVal + appFile.Name;
-            appFile.Description = "no Description";
-            appFile.addSession(getUserCod(),true);
+        BusinessConfigEntity physicalRoute = this.businessConfigSearchService.findById(
+                new BusinessConfigEntityID("ConfigurationFiles",groupTypeFile)
+        );
 
-            byte[] imageBytes = Base64.getDecoder().decode(appFileDto.base64.split(",")[1]);
+        appFile.FileType = getTypeFile(appFileDto.extension);
+        appFile.FileCod = generateCodFile(appFile.FileType);
+        appFile.Name = appFile.FileCod + "." + appFileDto.extension;
+        appFile.Route = physicalRoute.ConfigVal + appFile.Name;
+        appFile.Description = "no Description";
+        appFile.addSession(getUserCod());
 
-            Path path = Paths.get(appFile.Route);
+        byte[] imageBytes = Base64.getDecoder().decode(appFileDto.base64.split(",")[1]);
 
-            Files.write(path, imageBytes);
+        Path path = Paths.get(appFile.Route);
 
-            appFile.Route = hostRoute.ConfigVal + "image/" + appFile.Name;
-            return new ResponseWsDto(
-                    this.appFileRepository.save(appFile)
-            );
-        }catch (Exception ex){
-            return new ResponseWsDto(ex);
-        }
+        Files.write(path, imageBytes);
+
+        appFile.Route = physicalRoute.Str4Config + appFile.Name;
+        return new ResponseWsDto(
+                this.appFileRepository.save(appFile)
+        );
     }
 
     public String getTypeFile(String extension){
